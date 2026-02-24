@@ -1,207 +1,96 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
     <title>Event Staff Tracker</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
         body {
             font-family: 'Inter', sans-serif;
             background: #2c2f33;
-            color: #fff;
-            margin: 0;
-            padding: 0;
+            color: white;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
+            margin: 0;
         }
 
         .page {
             display: none;
-            width: 100%;
-            max-width: 600px;
             background: #23272a;
+            padding: 30px;
             border-radius: 12px;
-            padding: 35px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            width: 100%;
+            max-width: 700px;
         }
 
             .page.active {
                 display: block;
             }
 
-        h1 {
-            font-size: 26px;
-            margin: 0 0 10px;
-        }
-
-        h2 {
-            font-size: 20px;
-            margin: 0 0 10px;
-        }
-
-        h3 {
-            margin-top: 25px;
-        }
-
         input, select, textarea {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             margin: 10px 0;
-            border: none;
             border-radius: 8px;
+            border: none;
             background: #2c2f33;
-            color: #fff;
-            font-size: 14px;
-            outline: none;
+            color: white;
         }
 
-        textarea {
-            resize: vertical;
-        }
-
-        /* Main big buttons */
         button {
             width: 100%;
-            padding: 14px;
-            margin-top: 10px;
+            padding: 12px;
             border: none;
             border-radius: 8px;
             background: #7289da;
             color: white;
-            font-size: 15px;
             cursor: pointer;
-            transition: 0.2s;
         }
 
             button:hover {
                 background: #5b6eae;
             }
 
-        #notesList {
-            margin-top: 20px;
-        }
-
         .note {
             position: relative;
             background: #2c2f33;
-            padding: 18px;
-            margin-bottom: 15px;
-            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
             border-left: 4px solid #7289da;
+            border-radius: 8px;
         }
 
-            .note strong {
-                font-size: 16px;
-            }
-
-        .note-meta {
-            font-size: 12px;
-            opacity: 0.7;
-            margin: 6px 0 10px;
-        }
-
-        .note-text {
-            font-size: 15px;
-            line-height: 1.4;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-
-        /* ✅ Fix: Delete button SMALL and not full width */
         .delete-btn {
             position: absolute;
             top: 10px;
-            right: 12px; /* pushes it further right */
-            width: auto !important;
-            margin: 0 !important;
-            padding: 6px 10px !important;
-            border-radius: 999px;
-            font-size: 12px !important;
-            background: rgba(255, 107, 107, 0.12) !important;
-            color: #ff6b6b !important;
-            border: 1px solid rgba(255, 107, 107, 0.35) !important;
-            cursor: pointer;
-            line-height: 1;
-        }
-
-            .delete-btn:hover {
-                background: rgba(255, 107, 107, 0.20) !important;
-                color: #ff3b3b !important;
-            }
-
-        /* Recent logins UI */
-        .subtle {
-            opacity: 0.75;
-            font-size: 13px;
-            margin-top: 8px;
-        }
-
-        .quick-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .quick-btn {
-            width: auto !important;
-            margin: 0 !important;
-            padding: 10px 12px !important;
-            font-size: 13px !important;
-            border-radius: 10px !important;
-            background: #2c2f33 !important;
-            border: 1px solid rgba(255,255,255,0.08) !important;
-            color: #fff !important;
-        }
-
-            .quick-btn:hover {
-                background: #343842 !important;
-            }
-
-        .danger-link {
-            margin-top: 10px;
-            display: inline-block;
+            right: 10px;
+            padding: 5px 8px;
             font-size: 12px;
-            opacity: 0.75;
+            border-radius: 20px;
+            background: rgba(255,0,0,0.15);
+            color: #ff6b6b;
+            border: 1px solid rgba(255,0,0,0.2);
             cursor: pointer;
-            text-decoration: underline;
         }
     </style>
 </head>
-
 <body>
 
-    <!-- LOGIN PAGE -->
+    <!-- LOGIN -->
     <div id="loginPage" class="page active">
-        <h1>Event Staff Tracker</h1>
         <h2>Login with Discord ID</h2>
-
-        <!-- ✅ Quick Login list -->
-        <div id="quickLoginWrap" class="hidden">
-            <div class="subtle">Recent logins (click to autofill):</div>
-            <div id="quickLoginRow" class="quick-row"></div>
-            <span class="danger-link" onclick="clearRecentLogins()">Clear recent logins</span>
-        </div>
-
-        <input type="text" id="discordId" placeholder="Your Discord ID" />
-        <input type="password" id="password" placeholder="Password" />
+        <input id="discordId" placeholder="Discord ID">
+        <input id="password" type="password" placeholder="Password (1)">
         <button onclick="login()">Login</button>
-        <p id="loginMsg" style="color:#ff6b6b;"></p>
+        <p id="loginMsg" style="color:red;"></p>
     </div>
 
-    <!-- MAIN PAGE -->
+    <!-- MAIN -->
     <div id="mainPage" class="page">
         <h2>Welcome, <span id="userDisplay"></span></h2>
 
-        <h3>Add Notes for Trial Staff</h3>
         <select id="staffName">
             <option value="" disabled selected>Select Staff</option>
             <option>Masonman585</option>
@@ -214,7 +103,7 @@
             <option>SmokeSteelz</option>
         </select>
 
-        <textarea id="staffNote" placeholder="Write your notes here" rows="4"></textarea>
+        <textarea id="staffNote" placeholder="Write notes here"></textarea>
         <button onclick="addNote()">Save Note</button>
 
         <h3>Saved Notes</h3>
@@ -223,153 +112,98 @@
         <button onclick="logout()">Logout</button>
     </div>
 
-    <script>
-        const allowedDiscordIds = ["1229027284346994703", "713922739748208660"];
-        const defaultPassword = "1";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, where, onSnapshot, deleteDoc, doc, orderBy } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-        // ===== Recent Logins (localStorage) =====
-        const RECENT_KEY = "recentLogins"; // array of discord IDs
-        const MAX_RECENTS = 5;
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQnBtnX3IeSD3PSBJz-6qzdZ1TeFdIU-Y",
+            authDomain: "event-host-we.firebaseapp.com",
+            projectId: "event-host-we",
+            storageBucket: "event-host-we.firebasestorage.app",
+            messagingSenderId: "935018089447",
+            appId: "1:935018089447:web:02893483daf382c4098b42",
+            measurementId: "G-5J3L06TL7E"
+        };
 
-        function getRecents() {
-            return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]");
-        }
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        function addRecent(discordId) {
-            let recents = getRecents();
-            recents = recents.filter(id => id !== discordId); // remove duplicates
-            recents.unshift(discordId); // newest first
-            recents = recents.slice(0, MAX_RECENTS);
-            localStorage.setItem(RECENT_KEY, JSON.stringify(recents));
-            renderRecents();
-        }
+        const allowedIds = ["1229027284346994703", "713922739748208660"];
+        const passwordRequired = "1";
 
-        function renderRecents() {
-            const recents = getRecents();
-            const wrap = document.getElementById("quickLoginWrap");
-            const row = document.getElementById("quickLoginRow");
+        window.login = async function () {
+            const id = document.getElementById("discordId").value.trim();
+            const pass = document.getElementById("password").value;
 
-            if (!recents.length) {
-                wrap.classList.add("hidden");
-                row.innerHTML = "";
+            if (!allowedIds.includes(id)) {
+                document.getElementById("loginMsg").textContent = "ID not allowed";
+                return;
+            }
+            if (pass !== passwordRequired) {
+                document.getElementById("loginMsg").textContent = "Wrong password";
                 return;
             }
 
-            wrap.classList.remove("hidden");
-            row.innerHTML = "";
-            recents.forEach(id => {
-                const b = document.createElement("button");
-                b.className = "quick-btn";
-                b.type = "button";
-                b.textContent = id;
-                b.onclick = () => {
-                    document.getElementById("discordId").value = id;
-                    document.getElementById("password").focus();
-                };
-                row.appendChild(b);
-            });
-        }
+            await signInAnonymously(auth);
 
-        function clearRecentLogins() {
-            localStorage.removeItem(RECENT_KEY);
-            renderRecents();
-        }
-
-        // ===== App Logic =====
-        function login() {
-            const discordId = document.getElementById("discordId").value.trim();
-            const password = document.getElementById("password").value;
-
-            if (!allowedDiscordIds.includes(discordId)) {
-                document.getElementById("loginMsg").textContent = "This Discord ID is not allowed!";
-                return;
-            }
-            if (password !== defaultPassword) {
-                document.getElementById("loginMsg").textContent = "Incorrect password!";
-                return;
-            }
-
-            sessionStorage.setItem("loggedInUser", discordId);
-            addRecent(discordId); // ✅ save recent login
-            showMainPage();
-        }
-
-        function showMainPage() {
+            sessionStorage.setItem("user", id);
             document.getElementById("loginPage").classList.remove("active");
             document.getElementById("mainPage").classList.add("active");
-            document.getElementById("userDisplay").textContent = sessionStorage.getItem("loggedInUser");
-            displayNotes();
+            document.getElementById("userDisplay").textContent = id;
+
+            loadNotes();
         }
 
-        function logout() {
-            sessionStorage.removeItem("loggedInUser");
+        window.logout = function () {
+            sessionStorage.clear();
             document.getElementById("mainPage").classList.remove("active");
             document.getElementById("loginPage").classList.add("active");
-            document.getElementById("loginMsg").textContent = "";
-            document.getElementById("password").value = "";
-            renderRecents();
         }
 
-        function addNote() {
-            const staffName = document.getElementById("staffName").value;
-            const staffNote = document.getElementById("staffNote").value.trim();
-            if (!staffName || !staffNote) return alert("Select a staff member and write a note");
+        window.addNote = async function () {
+            const staff = document.getElementById("staffName").value;
+            const note = document.getElementById("staffNote").value.trim();
+            const user = sessionStorage.getItem("user");
 
-            const notes = JSON.parse(localStorage.getItem("notes") || "[]");
-            notes.push({
-                id: Date.now(),
-                staffName,
-                staffNote,
-                by: sessionStorage.getItem("loggedInUser"),
-                date: new Date().toLocaleString()
+            if (!staff || !note) return alert("Fill everything");
+
+            await addDoc(collection(db, "notes"), {
+                staffName: staff,
+                staffNote: note,
+                by: user,
+                date: Date.now()
             });
 
-            localStorage.setItem("notes", JSON.stringify(notes));
             document.getElementById("staffNote").value = "";
-            displayNotes();
         }
 
-        function deleteNote(noteId) {
-            let notes = JSON.parse(localStorage.getItem("notes") || "[]");
-            notes = notes.filter(note => note.id !== noteId);
-            localStorage.setItem("notes", JSON.stringify(notes));
-            displayNotes();
-        }
+        function loadNotes() {
+            const user = sessionStorage.getItem("user");
+            const q = query(collection(db, "notes"), where("by", "==", user), orderBy("date", "desc"));
 
-        function displayNotes() {
-            const notes = JSON.parse(localStorage.getItem("notes") || "[]");
-            const discordId = sessionStorage.getItem("loggedInUser");
-            const filteredNotes = notes.filter(note => note.by === discordId);
-
-            const notesList = document.getElementById("notesList");
-            notesList.innerHTML = "";
-
-            if (filteredNotes.length === 0) {
-                notesList.textContent = "No notes yet.";
-                return;
-            }
-
-            filteredNotes.forEach(note => {
-                const div = document.createElement("div");
-                div.className = "note";
-
-                div.innerHTML = `
-            <button class="delete-btn" type="button" onclick="deleteNote(${note.id})">Delete</button>
-            <strong>${note.staffName}</strong>
-            <div class="note-meta">${note.date}</div>
-            <div class="note-text">${note.staffNote}</div>
+            onSnapshot(q, (snapshot) => {
+                const list = document.getElementById("notesList");
+                list.innerHTML = "";
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const div = document.createElement("div");
+                    div.className = "note";
+                    div.innerHTML = `
+            <button class="delete-btn" onclick="deleteNote('${docSnap.id}')">Delete</button>
+            <strong>${data.staffName}</strong>
+            <div>${new Date(data.date).toLocaleString()}</div>
+            <div>${data.staffNote}</div>
           `;
-
-                notesList.appendChild(div);
+                    list.appendChild(div);
+                });
             });
         }
 
-        // ===== On load =====
-        renderRecents();
-
-        // Auto-login if already logged in (session)
-        if (sessionStorage.getItem("loggedInUser")) {
-            showMainPage();
+        window.deleteNote = async function (id) {
+            await deleteDoc(doc(db, "notes", id));
         }
     </script>
 
