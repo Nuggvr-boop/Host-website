@@ -1,439 +1,948 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Event Staff Tracker</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Event Staff Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: #2c2f33;
-      color: #fff;
-      margin: 0;
-      padding: 24px;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-    }
+    <style>
+        :root {
+            --bg: #14161a;
+            --panel: rgba(255,255,255,0.06);
+            --panel2: rgba(255,255,255,0.08);
+            --stroke: rgba(255,255,255,0.10);
+            --text: #eef1f6;
+            --muted: rgba(238,241,246,0.68);
+            --brand: #7289da;
+            --danger: #ff6b6b;
+            --shadow: 0 18px 60px rgba(0,0,0,0.45);
+            --radius: 18px;
+        }
 
-    .page {
-      display: none;
-      width: 100%;
-      max-width: 650px;
-      background: #23272a;
-      border-radius: 12px;
-      padding: 28px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-    }
-    .page.active { display: block; }
+        * {
+            box-sizing: border-box;
+        }
 
-    h1 { font-size: 26px; margin: 0 0 10px; }
-    h2 { font-size: 20px; margin: 0 0 12px; }
-    h3 { margin: 22px 0 10px; }
+        body {
+            margin: 0;
+            font-family: 'Inter',sans-serif;
+            color: var(--text);
+            background: radial-gradient(1200px 600px at 20% -10%, rgba(114,137,218,0.28), transparent 60%), radial-gradient(900px 500px at 90% 10%, rgba(255,107,107,0.18), transparent 60%), radial-gradient(900px 700px at 50% 120%, rgba(114,137,218,0.18), transparent 60%), var(--bg);
+            min-height: 100vh;
+        }
 
-    input, select, textarea {
-      width: 100%;
-      padding: 14px;
-      margin: 10px 0;
-      border: none;
-      border-radius: 10px;
-      background: #2c2f33;
-      color: #fff;
-      font-size: 14px;
-      outline: none;
-    }
-    textarea { resize: vertical; min-height: 120px; }
+        .glass {
+            background: var(--panel);
+            border: 1px solid var(--stroke);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
 
-    button {
-      width: 100%;
-      padding: 14px;
-      margin-top: 10px;
-      border: none;
-      border-radius: 10px;
-      background: #7289da;
-      color: #fff;
-      font-size: 15px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-    button:hover { background: #5b6eae; }
+        /* ---------- Login ---------- */
+        .login-wrap {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+        }
 
-    .subtle { opacity: 0.75; font-size: 13px; margin-top: 6px; }
+        .login-card {
+            width: 100%;
+            max-width: 560px;
+            padding: 26px;
+        }
 
-    #notesList { margin-top: 14px; }
+        .title {
+            font-size: 28px;
+            margin: 0 0 6px;
+            letter-spacing: 0.2px;
+        }
 
-    .note {
-      position: relative;
-      background: #2c2f33;
-      padding: 16px 16px 14px;
-      margin-bottom: 12px;
-      border-radius: 10px;
-      border-left: 4px solid #7289da;
-    }
-    .note strong { font-size: 16px; display:block; margin-bottom: 6px; }
-    .note-meta { font-size: 12px; opacity: 0.75; margin-bottom: 8px; }
-    .note-text { font-size: 15px; line-height: 1.4; white-space: pre-wrap; word-wrap: break-word; }
+        .subtitle {
+            margin: 0 0 16px;
+            color: var(--muted);
+            font-size: 14px;
+        }
 
-    .delete-btn {
-      position: absolute;
-      top: 10px;
-      right: 12px;
-      width: auto !important;
-      margin: 0 !important;
-      padding: 6px 10px !important;
-      border-radius: 999px !important;
-      font-size: 12px !important;
-      line-height: 1 !important;
-      background: rgba(255, 107, 107, 0.14) !important;
-      color: #ff6b6b !important;
-      border: 1px solid rgba(255, 107, 107, 0.28) !important;
-      cursor: pointer;
-    }
-    .delete-btn:hover {
-      background: rgba(255, 107, 107, 0.22) !important;
-      color: #ff3b3b !important;
-    }
+        .stack {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
 
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-    .topbar .right { min-width: 140px; }
+        input, select, textarea {
+            width: 100%;
+            padding: 13px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(0,0,0,0.20);
+            color: var(--text);
+            outline: none;
+            font-size: 14px;
+        }
 
-    /* Recent logins */
-    .quick-wrap { margin: 12px 0 6px; }
-    .quick-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-    .quick-btn {
-      width: auto !important;
-      margin: 0 !important;
-      padding: 10px 12px !important;
-      font-size: 13px !important;
-      border-radius: 10px !important;
-      background: #2c2f33 !important;
-      border: 1px solid rgba(255,255,255,0.08) !important;
-      color: #fff !important;
-      cursor: pointer;
-    }
-    .quick-btn:hover { background: #343842 !important; }
-    .danger-link {
-      display: inline-block;
-      margin-top: 8px;
-      font-size: 12px;
-      opacity: 0.75;
-      cursor: pointer;
-      text-decoration: underline;
-    }
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
 
-    .who-line {
-      font-size: 12px;
-      opacity: 0.8;
-      margin-top: -2px;
-    }
-  </style>
+            input::placeholder, textarea::placeholder {
+                color: rgba(238,241,246,0.42);
+            }
+
+        .btn {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.10);
+            cursor: pointer;
+            background: rgba(0,0,0,0.20);
+            color: var(--text);
+            transition: 0.15s ease;
+            font-weight: 600;
+        }
+
+            .btn:hover {
+                transform: translateY(-1px);
+                background: rgba(255,255,255,0.08);
+            }
+
+        .btn-primary {
+            background: rgba(114,137,218,0.28);
+            border-color: rgba(114,137,218,0.45);
+        }
+
+            .btn-primary:hover {
+                background: rgba(114,137,218,0.36);
+            }
+
+        .mini {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .error {
+            color: var(--danger);
+            margin: 6px 0 0;
+            font-size: 13px;
+        }
+
+        .quick-wrap {
+            margin-top: 10px;
+        }
+
+        .quick-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .quick-btn {
+            width: auto;
+            padding: 8px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.10);
+            color: var(--text);
+            cursor: pointer;
+        }
+
+            .quick-btn:hover {
+                background: rgba(255,255,255,0.10);
+            }
+
+        .link {
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--muted);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        /* ---------- App Shell ---------- */
+        .app {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .shell {
+            display: grid;
+            grid-template-columns: 270px 1fr;
+            gap: 18px;
+            padding: 18px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .sidebar {
+            padding: 18px;
+            position: sticky;
+            top: 18px;
+            height: calc(100vh - 36px);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+            .brand .name {
+                font-weight: 700;
+                font-size: 16px;
+            }
+
+        .pill {
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            background: rgba(114,137,218,0.20);
+            border: 1px solid rgba(114,137,218,0.35);
+            color: var(--text);
+            white-space: nowrap;
+        }
+
+        .nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 6px;
+        }
+
+            .nav button {
+                text-align: left;
+                width: 100%;
+                border-radius: 14px;
+                padding: 11px 12px;
+                background: rgba(255,255,255,0.04);
+                border: 1px solid rgba(255,255,255,0.08);
+                color: var(--text);
+                cursor: pointer;
+                font-weight: 600;
+                transition: 0.15s ease;
+            }
+
+                .nav button:hover {
+                    background: rgba(255,255,255,0.08);
+                }
+
+                .nav button.active {
+                    background: rgba(114,137,218,0.22);
+                    border-color: rgba(114,137,218,0.40);
+                }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-danger {
+            background: rgba(255,107,107,0.14);
+            border-color: rgba(255,107,107,0.25);
+        }
+
+            .btn-danger:hover {
+                background: rgba(255,107,107,0.20);
+            }
+
+        .content {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .topbar {
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+            .topbar h2 {
+                margin: 0;
+                font-size: 18px;
+            }
+
+            .topbar .muted {
+                color: var(--muted);
+                font-size: 13px;
+                margin-top: 4px;
+            }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 18px;
+        }
+
+        .tab {
+            display: none;
+        }
+
+            .tab.active {
+                display: block;
+            }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 220px;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .notes {
+            padding: 18px;
+        }
+
+        .note {
+            position: relative;
+            padding: 16px;
+            border-radius: 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            margin-top: 12px;
+            transition: 0.15s ease;
+        }
+
+            .note:hover {
+                transform: translateY(-1px);
+                background: rgba(255,255,255,0.07);
+            }
+
+        .note-title {
+            font-weight: 700;
+            font-size: 16px;
+            margin: 0 0 6px;
+        }
+
+        .note-meta {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .note-text {
+            font-size: 14px;
+            line-height: 1.45;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: auto;
+            padding: 7px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            background: rgba(255,107,107,0.14);
+            border: 1px solid rgba(255,107,107,0.25);
+            color: var(--danger);
+            cursor: pointer;
+        }
+
+            .delete-btn:hover {
+                background: rgba(255,107,107,0.20);
+            }
+
+        .card {
+            padding: 18px;
+        }
+
+            .card h3 {
+                margin: 0 0 10px;
+                font-size: 16px;
+            }
+
+        .hint {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: -4px;
+        }
+
+        /* Prompt dropdown grid */
+        .prompt-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .prompt-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+            .prompt-actions .btn {
+                width: 100%;
+            }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.45);
+            border: 1px solid rgba(255,255,255,0.10);
+            color: var(--text);
+            padding: 10px 12px;
+            border-radius: 999px;
+            backdrop-filter: blur(10px);
+            display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+            font-size: 13px;
+        }
+
+        @media (max-width: 900px) {
+            .shell {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                height: auto;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+            }
+
+            .prompt-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
 <body>
 
-  <!-- LOGIN PAGE -->
-  <div id="loginPage" class="page active">
-    <h1>Event Staff Tracker</h1>
-    <h2>Login with Discord ID</h2>
+    <!-- LOGIN -->
+    <div id="loginWrap" class="login-wrap">
+        <div class="login-card glass">
+            <div class="title">Event Staff Tracker</div>
+            <div class="subtitle">Login with Discord ID (password is <b>1</b>)</div>
 
-    <!-- Recent logins -->
-    <div id="quickLoginWrap" class="quick-wrap" style="display:none;">
-      <div class="subtle">Recent logins (click to autofill):</div>
-      <div id="quickLoginRow" class="quick-row"></div>
-      <span class="danger-link" onclick="clearRecentLogins()">Clear recent logins</span>
+            <div id="quickLoginWrap" class="quick-wrap" style="display:none;">
+                <div class="mini">Recent logins (click to autofill):</div>
+                <div id="quickLoginRow" class="quick-row"></div>
+                <div class="link" onclick="clearRecentLogins()">Clear recent logins</div>
+            </div>
+
+            <div class="stack">
+                <input id="discordId" placeholder="Discord ID" />
+                <div id="loginAs" class="mini"></div>
+                <input id="password" type="password" placeholder="Password (1)" />
+                <button class="btn btn-primary" onclick="login()">Login</button>
+                <div id="loginMsg" class="error"></div>
+                <div id="statusText" class="mini">Status: loading…</div>
+            </div>
+        </div>
     </div>
 
-    <input type="text" id="discordId" placeholder="Your Discord ID" />
-    <div id="loginAs" class="who-line"></div>
-    <input type="password" id="password" placeholder="Password (1)" />
-    <button onclick="login()">Login</button>
+    <!-- APP -->
+    <div id="app" class="app">
+        <div class="shell">
+            <!-- SIDEBAR -->
+            <div class="sidebar glass">
+                <div class="brand">
+                    <div>
+                        <div class="name">Dashboard</div>
+                        <div class="mini">Event Staff Tracker</div>
+                    </div>
+                    <div class="pill" id="userPill">—</div>
+                </div>
 
-    <p id="loginMsg" style="color:#ff6b6b;"></p>
-    <div class="subtle" id="statusText">Status: loading…</div>
-  </div>
+                <div class="nav">
+                    <button id="tabBtnNotes" class="active" onclick="openTab('notesTab')">🗒 Notes</button>
+                    <button id="tabBtnAdd" onclick="openTab('addTab')">➕ Add Note</button>
+                    <button id="tabBtnSettings" onclick="openTab('settingsTab')">⚙ Settings</button>
+                </div>
 
-  <!-- MAIN PAGE -->
-  <div id="mainPage" class="page">
-    <div class="topbar">
-      <div>
-        <h2>Welcome, <span id="userDisplay"></span></h2>
-        <div class="subtle">Notes sync across devices (Firestore).</div>
-      </div>
-      <div class="right">
-        <button onclick="logout()">Logout</button>
-      </div>
+                <div class="sidebar-bottom">
+                    <button class="btn btn-danger" onclick="logout()">Logout</button>
+                    <div class="mini">Synced with Firestore ✅</div>
+                </div>
+            </div>
+
+            <!-- CONTENT -->
+            <div class="content">
+                <div class="topbar glass">
+                    <div>
+                        <h2 id="topTitle">Notes</h2>
+                        <div class="muted" id="topDesc">Search and filter your notes.</div>
+                    </div>
+                    <div class="pill" id="topUser">—</div>
+                </div>
+
+                <div class="grid">
+                    <!-- NOTES TAB -->
+                    <div id="notesTab" class="tab active glass notes">
+                        <div class="mini">Your notes are private to your login ID.</div>
+
+                        <div class="controls">
+                            <input id="searchInput" placeholder="Search notes…" />
+                            <select id="filterStaff">
+                                <option value="__all__">All staff</option>
+                                <option>Masonman585</option>
+                                <option>𝙷𝚊𝚣𝚖𝚊𝚝</option>
+                                <option>civda</option>
+                                <option>Glitch</option>
+                                <option>Mr.Builder</option>
+                                <option>Nate</option>
+                                <option>Riskhunter</option>
+                                <option>SmokeSteelz</option>
+                            </select>
+                        </div>
+
+                        <div id="notesList" class="mini" style="margin-top:12px;">Loading…</div>
+                    </div>
+
+                    <!-- ADD TAB -->
+                    <div id="addTab" class="tab glass card">
+                        <h3>Add a note</h3>
+                        <div class="hint">Use prompts to help write consistent notes.</div>
+
+                        <select id="staffName">
+                            <option value="" disabled selected>Select Staff</option>
+                            <option>Masonman585</option>
+                            <option>𝙷𝚊𝚣𝚖𝚊𝚝</option>
+                            <option>civda</option>
+                            <option>Glitch</option>
+                            <option>Mr.Builder</option>
+                            <option>Nate</option>
+                            <option>Riskhunter</option>
+                            <option>SmokeSteelz</option>
+                        </select>
+
+                        <textarea id="staffNote" placeholder="Write your notes here…"></textarea>
+
+                        <!-- PROMPT DROPDOWNS -->
+                        <div class="hint" style="margin-top:10px;">Quick prompts (pick some, then click “Add prompts to note”)</div>
+                        <div class="prompt-grid">
+                            <select id="tonePick">
+                                <option value="">Tone / Voice…</option>
+                                <option>Calm / quiet</option>
+                                <option>Normal</option>
+                                <option>Loud / energetic</option>
+                                <option>Too loud / talked over people</option>
+                            </select>
+
+                            <select id="confidencePick">
+                                <option value="">Confidence…</option>
+                                <option>Confident</option>
+                                <option>A bit nervous</option>
+                                <option>Unsure / needed help</option>
+                                <option>Very confident</option>
+                            </select>
+
+                            <select id="hostingPick">
+                                <option value="">Hosting skill…</option>
+                                <option>Explained rules clearly</option>
+                                <option>Kept players engaged</option>
+                                <option>Good time management</option>
+                                <option>Struggled to control group</option>
+                                <option>Missed key steps</option>
+                            </select>
+
+                            <select id="behaviourPick">
+                                <option value="">Behaviour…</option>
+                                <option>Respectful</option>
+                                <option>Friendly</option>
+                                <option>Patient</option>
+                                <option>Got frustrated</option>
+                                <option>Was rude / targeted people</option>
+                            </select>
+
+                            <select id="pacingPick">
+                                <option value="">Event flow…</option>
+                                <option>Started quickly</option>
+                                <option>Smooth transitions</option>
+                                <option>Great pacing</option>
+                                <option>Slow start</option>
+                                <option>Lots of downtime</option>
+                            </select>
+
+                            <select id="ratingPick">
+                                <option value="">Overall rating…</option>
+                                <option>⭐ 1 (Not ready)</option>
+                                <option>⭐⭐ 2 (Needs training)</option>
+                                <option>⭐⭐⭐ 3 (Okay)</option>
+                                <option>⭐⭐⭐⭐ 4 (Good)</option>
+                                <option>⭐⭐⭐⭐⭐ 5 (Excellent)</option>
+                            </select>
+
+                            <select id="recommendPick">
+                                <option value="">Recommendation…</option>
+                                <option>✅ Pass</option>
+                                <option>🟡 Maybe / needs training</option>
+                                <option>❌ Fail</option>
+                            </select>
+
+                            <button class="btn" type="button" onclick="applyPrompts()">Add prompts to note</button>
+                        </div>
+
+                        <div class="prompt-actions">
+                            <button class="btn btn-primary" onclick="addNote()">Save Note</button>
+                        </div>
+                    </div>
+
+                    <!-- SETTINGS TAB -->
+                    <div id="settingsTab" class="tab glass card">
+                        <h3>Settings</h3>
+                        <div class="hint">Quality of life stuff.</div>
+                        <button class="btn" onclick="clearRecentLogins()">Clear recent logins (this device)</button>
+                        <div class="mini" style="margin-top:8px;">
+                            Recent logins are saved per browser/device. Notes are stored in Firestore and sync everywhere.
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
     </div>
 
-    <h3>Add Notes for Trial Staff</h3>
-    <select id="staffName">
-      <option value="" disabled selected>Select Staff</option>
-      <option>Masonman585</option>
-      <option>𝙷𝚊𝚣𝚖𝚊𝚝</option>
-      <option>civda</option>
-      <option>Glitch</option>
-      <option>Mr.Builder</option>
-      <option>Nate</option>
-      <option>Riskhunter</option>
-      <option>SmokeSteelz</option>
-    </select>
+    <div id="toast" class="toast"></div>
 
-    <textarea id="staffNote" placeholder="Write your notes here"></textarea>
-    <button onclick="addNote()">Save Note</button>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+        import {
+            getFirestore, collection, addDoc, query, where,
+            onSnapshot, deleteDoc, doc
+        } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-    <h3>Saved Notes</h3>
-    <div id="notesList">Loading…</div>
-  </div>
-
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
-    import {
-      getFirestore, collection, addDoc, query, where,
-      onSnapshot, deleteDoc, doc
-    } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
-
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyDQnBtnX3IeSD3PSBJz-6qzdZ1TeFdIU-Y",
-      authDomain: "event-host-we.firebaseapp.com",
-      projectId: "event-host-we",
-      storageBucket: "event-host-we.firebasestorage.app",
-      messagingSenderId: "935018089447",
-      appId: "1:935018089447:web:02893483daf382c4098b42",
-      measurementId: "G-5J3L06TL7E"
-    };
-
-    // ID -> Display Name
-    const idToName = {
-      "1229027284346994703": "Nugg",
-      "713922739748208660": "ArtistRed",
-      "930583720723898419": "cyberPICKABOOM",
-      "698264742472581180": "Reeta-MKII"
-    };
-
-    const allowedIds = Object.keys(idToName);
-    const passwordRequired = "1";
-
-    // Recent logins (device/browser only)
-    const RECENT_KEY = "recentLogins";
-    const MAX_RECENTS = 6;
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    const statusText = document.getElementById("statusText");
-    statusText.textContent = "Status: ready ✅";
-
-    let unsubscribe = null;
-
-    function show(pageId) {
-      document.getElementById("loginPage").classList.remove("active");
-      document.getElementById("mainPage").classList.remove("active");
-      document.getElementById(pageId).classList.add("active");
-    }
-
-    function escapeHtml(s) {
-      return (s ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;");
-    }
-
-    // ----- show "Logging in as: NAME" under the input
-    function updateLoginAsText() {
-      const id = document.getElementById("discordId").value.trim();
-      const el = document.getElementById("loginAs");
-      if (!id) { el.textContent = ""; return; }
-      const name = idToName[id];
-      el.textContent = name ? `Logging in as: ${name}` : `Unknown ID`;
-    }
-    document.getElementById("discordId").addEventListener("input", updateLoginAsText);
-
-    // ---------- Recent logins ----------
-    function getRecents() {
-      return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]");
-    }
-
-    function addRecent(id) {
-      let recents = getRecents();
-      recents = recents.filter(x => x !== id);
-      recents.unshift(id);
-      recents = recents.slice(0, MAX_RECENTS);
-      localStorage.setItem(RECENT_KEY, JSON.stringify(recents));
-      renderRecents();
-    }
-
-    function renderRecents() {
-      const recents = getRecents();
-      const wrap = document.getElementById("quickLoginWrap");
-      const row = document.getElementById("quickLoginRow");
-
-      if (!recents.length) {
-        wrap.style.display = "none";
-        row.innerHTML = "";
-        return;
-      }
-
-      wrap.style.display = "block";
-      row.innerHTML = "";
-
-      recents.forEach(id => {
-        const b = document.createElement("button");
-        b.className = "quick-btn";
-        b.type = "button";
-
-        // ✅ Show NAME (ID) instead of just ID
-        const name = idToName[id] || "Unknown";
-        b.textContent = `${name} (${id})`;
-
-        b.onclick = () => {
-          document.getElementById("discordId").value = id;
-          updateLoginAsText();
-          document.getElementById("password").focus();
+        const firebaseConfig = {
+            apiKey: "AIzaSyDQnBtnX3IeSD3PSBJz-6qzdZ1TeFdIU-Y",
+            authDomain: "event-host-we.firebaseapp.com",
+            projectId: "event-host-we",
+            storageBucket: "event-host-we.firebasestorage.app",
+            messagingSenderId: "935018089447",
+            appId: "1:935018089447:web:02893483daf382c4098b42",
+            measurementId: "G-5J3L06TL7E"
         };
-        row.appendChild(b);
-      });
-    }
 
-    window.clearRecentLogins = function () {
-      localStorage.removeItem(RECENT_KEY);
-      renderRecents();
-    };
+        const idToName = {
+            "1229027284346994703": "Nugg",
+            "713922739748208660": "ArtistRed",
+            "930583720723898419": "cyberPICKABOOM",
+            "698264742472581180": "Reeta-MKII"
+        };
 
-    // ---------- Notes listener (no index needed, sort in JS) ----------
-    function startListener() {
-      const user = sessionStorage.getItem("user");
-      if (!user) return;
+        const allowedIds = Object.keys(idToName);
+        const passwordRequired = "1";
 
-      if (unsubscribe) unsubscribe();
+        // Recents
+        const RECENT_KEY = "recentLogins";
+        const MAX_RECENTS = 6;
 
-      const q = query(
-        collection(db, "notes"),
-        where("by", "==", user)
-      );
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-      unsubscribe = onSnapshot(q, (snap) => {
-        const list = document.getElementById("notesList");
-        list.innerHTML = "";
+        const statusText = document.getElementById("statusText");
+        statusText.textContent = "Status: ready ✅";
 
-        const notes = [];
-        snap.forEach((docSnap) => notes.push({ id: docSnap.id, ...docSnap.data() }));
-        notes.sort((a, b) => (b.date || 0) - (a.date || 0));
+        let unsubscribe = null;
+        let latestNotes = [];
 
-        if (notes.length === 0) {
-          list.textContent = "No notes yet.";
-          return;
+        // UI helpers
+        function showToast(msg) {
+            const t = document.getElementById("toast");
+            t.textContent = msg;
+            t.style.display = "block";
+            clearTimeout(showToast._timer);
+            showToast._timer = setTimeout(() => t.style.display = "none", 1600);
         }
 
-        for (const n of notes) {
-          const div = document.createElement("div");
-          div.className = "note";
-          div.innerHTML = `
+        function escapeHtml(s) {
+            return (s ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;");
+        }
+
+        function setLoginAsText() {
+            const id = document.getElementById("discordId").value.trim();
+            const el = document.getElementById("loginAs");
+            if (!id) { el.textContent = ""; return; }
+            el.textContent = idToName[id] ? `Logging in as: ${idToName[id]}` : `Unknown ID`;
+        }
+        document.getElementById("discordId").addEventListener("input", setLoginAsText);
+
+        // Tabs
+        window.openTab = function (tabId) {
+            ["notesTab", "addTab", "settingsTab"].forEach(id => {
+                document.getElementById(id).classList.remove("active");
+            });
+            document.getElementById(tabId).classList.add("active");
+
+            ["tabBtnNotes", "tabBtnAdd", "tabBtnSettings"].forEach(id => {
+                document.getElementById(id).classList.remove("active");
+            });
+
+            const title = document.getElementById("topTitle");
+            const desc = document.getElementById("topDesc");
+
+            if (tabId === "notesTab") {
+                document.getElementById("tabBtnNotes").classList.add("active");
+                title.textContent = "Notes";
+                desc.textContent = "Search and filter your notes.";
+            } else if (tabId === "addTab") {
+                document.getElementById("tabBtnAdd").classList.add("active");
+                title.textContent = "Add Note";
+                desc.textContent = "Write a new note for trial staff.";
+            } else {
+                document.getElementById("tabBtnSettings").classList.add("active");
+                title.textContent = "Settings";
+                desc.textContent = "Quick options for your device.";
+            }
+        };
+
+        // Recent logins
+        function getRecents() { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); }
+
+        function addRecent(id) {
+            let r = getRecents();
+            r = r.filter(x => x !== id);
+            r.unshift(id);
+            r = r.slice(0, MAX_RECENTS);
+            localStorage.setItem(RECENT_KEY, JSON.stringify(r));
+            renderRecents();
+        }
+
+        function renderRecents() {
+            const r = getRecents();
+            const wrap = document.getElementById("quickLoginWrap");
+            const row = document.getElementById("quickLoginRow");
+            if (!r.length) { wrap.style.display = "none"; row.innerHTML = ""; return; }
+
+            wrap.style.display = "block";
+            row.innerHTML = "";
+            r.forEach(id => {
+                const b = document.createElement("button");
+                b.className = "quick-btn";
+                const name = idToName[id] || "Unknown";
+                b.textContent = `${name} (${id})`;
+                b.onclick = () => {
+                    document.getElementById("discordId").value = id;
+                    setLoginAsText();
+                    document.getElementById("password").focus();
+                };
+                row.appendChild(b);
+            });
+        }
+
+        window.clearRecentLogins = function () {
+            localStorage.removeItem(RECENT_KEY);
+            renderRecents();
+            showToast("Recent logins cleared ✅");
+        };
+
+        // App show/hide
+        function showApp() {
+            document.getElementById("loginWrap").style.display = "none";
+            document.getElementById("app").style.display = "block";
+        }
+        function showLogin() {
+            document.getElementById("app").style.display = "none";
+            document.getElementById("loginWrap").style.display = "grid";
+        }
+
+        // Listener (no index; sort in JS)
+        function startListener() {
+            const user = sessionStorage.getItem("user");
+            if (!user) return;
+
+            if (unsubscribe) unsubscribe();
+
+            const q = query(collection(db, "notes"), where("by", "==", user));
+
+            unsubscribe = onSnapshot(q, (snap) => {
+                const notes = [];
+                snap.forEach(docSnap => notes.push({ id: docSnap.id, ...docSnap.data() }));
+                notes.sort((a, b) => (b.date || 0) - (a.date || 0));
+                latestNotes = notes;
+                renderNotes();
+            }, (err) => {
+                console.error(err);
+                document.getElementById("notesList").textContent = "Error loading notes (check console).";
+            });
+        }
+
+        function renderNotes() {
+            const list = document.getElementById("notesList");
+            const search = document.getElementById("searchInput").value.trim().toLowerCase();
+            const filter = document.getElementById("filterStaff").value;
+
+            let notes = [...latestNotes];
+            if (filter !== "__all__") {
+                notes = notes.filter(n => n.staffName === filter);
+            }
+            if (search) {
+                notes = notes.filter(n =>
+                    (n.staffName || "").toLowerCase().includes(search) ||
+                    (n.staffNote || "").toLowerCase().includes(search) ||
+                    (n.byName || "").toLowerCase().includes(search)
+                );
+            }
+
+            list.innerHTML = "";
+            if (!notes.length) {
+                list.textContent = "No notes found.";
+                return;
+            }
+
+            for (const n of notes) {
+                const div = document.createElement("div");
+                div.className = "note";
+                div.innerHTML = `
             <button class="delete-btn" type="button" onclick="deleteNote('${n.id}')">Delete</button>
-            <strong>${escapeHtml(n.staffName)}</strong>
+            <div class="note-title">${escapeHtml(n.staffName)}</div>
             <div class="note-meta">${new Date(n.date).toLocaleString()} • ${escapeHtml(n.byName || idToName[n.by] || n.by)}</div>
             <div class="note-text">${escapeHtml(n.staffNote)}</div>
           `;
-          list.appendChild(div);
+                list.appendChild(div);
+            }
         }
-      }, (err) => {
-        console.error(err);
-        document.getElementById("notesList").textContent = "Error loading notes (check console).";
-      });
-    }
 
-    // ---------- Handlers ----------
-    window.login = async function () {
-      const id = document.getElementById("discordId").value.trim();
-      const pass = document.getElementById("password").value;
-      document.getElementById("loginMsg").textContent = "";
+        document.getElementById("searchInput").addEventListener("input", renderNotes);
+        document.getElementById("filterStaff").addEventListener("change", renderNotes);
 
-      if (!allowedIds.includes(id)) {
-        document.getElementById("loginMsg").textContent = "This Discord ID is not allowed.";
-        return;
-      }
-      if (pass !== passwordRequired) {
-        document.getElementById("loginMsg").textContent = "Wrong password.";
-        return;
-      }
+        // ✅ Add prompt lines into the textarea
+        window.applyPrompts = function () {
+            const tone = document.getElementById("tonePick").value;
+            const conf = document.getElementById("confidencePick").value;
+            const host = document.getElementById("hostingPick").value;
+            const beh = document.getElementById("behaviourPick").value;
+            const pace = document.getElementById("pacingPick").value;
+            const rate = document.getElementById("ratingPick").value;
+            const rec = document.getElementById("recommendPick").value;
 
-      try {
-        await signInAnonymously(auth);
+            const parts = [];
+            if (tone) parts.push(`• Tone: ${tone}`);
+            if (conf) parts.push(`• Confidence: ${conf}`);
+            if (host) parts.push(`• Hosting: ${host}`);
+            if (beh) parts.push(`• Behaviour: ${beh}`);
+            if (pace) parts.push(`• Event flow: ${pace}`);
+            if (rate) parts.push(`• Rating: ${rate}`);
+            if (rec) parts.push(`• Recommendation: ${rec}`);
 
-        sessionStorage.setItem("user", id);
-        document.getElementById("userDisplay").textContent = idToName[id] || id;
+            if (!parts.length) return showToast("Pick prompts first");
 
-        addRecent(id);
-        show("mainPage");
-        startListener();
-      } catch (e) {
-        console.error(e);
-        document.getElementById("loginMsg").textContent = "Firebase auth failed (open Console).";
-      }
-    };
+            const box = document.getElementById("staffNote");
+            const block = parts.join("\n");
+            box.value = (box.value ? box.value.trimEnd() + "\n\n" : "") + block + "\n";
+            showToast("Prompts added ✅");
+        };
 
-    window.logout = function () {
-      sessionStorage.removeItem("user");
-      if (unsubscribe) unsubscribe();
-      unsubscribe = null;
-      show("loginPage");
-      renderRecents();
-      updateLoginAsText();
-    };
+        // Handlers
+        window.login = async function () {
+            const id = document.getElementById("discordId").value.trim();
+            const pass = document.getElementById("password").value;
+            const msg = document.getElementById("loginMsg");
+            msg.textContent = "";
 
-    window.addNote = async function () {
-      const staff = document.getElementById("staffName").value;
-      const note = document.getElementById("staffNote").value.trim();
-      const user = sessionStorage.getItem("user");
+            if (!allowedIds.includes(id)) { msg.textContent = "This Discord ID is not allowed."; return; }
+            if (pass !== passwordRequired) { msg.textContent = "Wrong password."; return; }
 
-      if (!staff || !note) return alert("Select staff + write a note.");
-      if (!user) return alert("Not logged in.");
+            try {
+                await signInAnonymously(auth);
 
-      try {
-        await addDoc(collection(db, "notes"), {
-          staffName: staff,
-          staffNote: note,
-          by: user,
-          byName: idToName[user] || user,
-          date: Date.now()
-        });
+                sessionStorage.setItem("user", id);
 
-        document.getElementById("staffNote").value = "";
-      } catch (e) {
-        console.error(e);
-        alert("Failed to save note (open Console).");
-      }
-    };
+                const name = idToName[id] || id;
+                document.getElementById("userPill").textContent = name;
+                document.getElementById("topUser").textContent = `Logged in as ${name}`;
 
-    window.deleteNote = async function (docId) {
-      try {
-        await deleteDoc(doc(db, "notes", docId));
-      } catch (e) {
-        console.error(e);
-        alert("Delete failed (open Console).");
-      }
-    };
+                addRecent(id);
 
-    // ---------- Init ----------
-    renderRecents();
-    updateLoginAsText();
+                showApp();
+                openTab("notesTab");
+                startListener();
+                showToast("Logged in ✅");
+            } catch (e) {
+                console.error(e);
+                msg.textContent = "Firebase auth failed (open Console).";
+            }
+        };
 
-    if (sessionStorage.getItem("user")) {
-      const id = sessionStorage.getItem("user");
-      document.getElementById("userDisplay").textContent = idToName[id] || id;
-      show("mainPage");
-      startListener();
-    }
-  </script>
+        window.logout = function () {
+            sessionStorage.removeItem("user");
+            if (unsubscribe) unsubscribe();
+            unsubscribe = null;
+            latestNotes = [];
+            showLogin();
+            renderRecents();
+            setLoginAsText();
+            showToast("Logged out ✅");
+        };
+
+        window.addNote = async function () {
+            const staff = document.getElementById("staffName").value;
+            const note = document.getElementById("staffNote").value.trim();
+            const user = sessionStorage.getItem("user");
+            if (!staff || !note) return showToast("Fill staff + note first");
+
+            try {
+                await addDoc(collection(db, "notes"), {
+                    staffName: staff,
+                    staffNote: note,
+                    by: user,
+                    byName: idToName[user] || user,
+                    date: Date.now()
+                });
+                document.getElementById("staffNote").value = "";
+                openTab("notesTab");
+                showToast("Saved ✅");
+            } catch (e) {
+                console.error(e);
+                showToast("Save failed (check console)");
+            }
+        };
+
+        window.deleteNote = async function (docId) {
+            try {
+                await deleteDoc(doc(db, "notes", docId));
+                showToast("Deleted ✅");
+            } catch (e) {
+                console.error(e);
+                showToast("Delete failed (check console)");
+            }
+        };
+
+        // Init
+        renderRecents();
+        setLoginAsText();
+
+        // Resume session
+        if (sessionStorage.getItem("user")) {
+            const id = sessionStorage.getItem("user");
+            const name = idToName[id] || id;
+            document.getElementById("userPill").textContent = name;
+            document.getElementById("topUser").textContent = `Logged in as ${name}`;
+            showApp();
+            openTab("notesTab");
+            startListener();
+        }
+    </script>
 </body>
 </html>
