@@ -13,11 +13,10 @@
       background: #2c2f33;
       color: #fff;
       margin: 0;
-      padding: 0;
+      padding: 24px;
       min-height: 100vh;
       display: grid;
       place-items: center;
-      padding: 24px;
     }
 
     .page {
@@ -75,10 +74,10 @@
       border-left: 4px solid #7289da;
     }
     .note strong { font-size: 16px; display:block; margin-bottom: 6px; }
-    .note .meta { font-size: 12px; opacity: 0.75; margin-bottom: 8px; }
-    .note .text { font-size: 15px; line-height: 1.4; white-space: pre-wrap; word-wrap: break-word; }
+    .note-meta { font-size: 12px; opacity: 0.75; margin-bottom: 8px; }
+    .note-text { font-size: 15px; line-height: 1.4; white-space: pre-wrap; word-wrap: break-word; }
 
-    /* IMPORTANT: make Delete small (override global button styles) */
+    /* small delete (override global button) */
     .delete-btn {
       position: absolute;
       top: 10px;
@@ -92,6 +91,7 @@
       background: rgba(255, 107, 107, 0.14) !important;
       color: #ff6b6b !important;
       border: 1px solid rgba(255, 107, 107, 0.28) !important;
+      cursor: pointer;
     }
     .delete-btn:hover {
       background: rgba(255, 107, 107, 0.22) !important;
@@ -117,7 +117,7 @@
 
     <input type="text" id="discordId" placeholder="Your Discord ID" />
     <input type="password" id="password" placeholder="Password (1)" />
-    <button id="loginBtn" onclick="login()">Login</button>
+    <button onclick="login()">Login</button>
 
     <p id="loginMsg" style="color:#ff6b6b;"></p>
     <div class="subtle" id="statusText">Status: loading…</div>
@@ -155,17 +155,15 @@
     <div id="notesList">Loading…</div>
   </div>
 
-  <!-- FIREBASE + APP LOGIC -->
   <script type="module">
-    // Firebase v12 (modular)
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
     import {
-      getFirestore, collection, addDoc, query, where, orderBy,
+      getFirestore, collection, addDoc, query, where,
       onSnapshot, deleteDoc, doc
     } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-    // Your config
+    // ✅ your firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyDQnBtnX3IeSD3PSBJz-6qzdZ1TeFdIU-Y",
       authDomain: "event-host-we.firebaseapp.com",
@@ -202,50 +200,58 @@
         .replaceAll('"', "&quot;");
     }
 
-    async function startListener() {
+    function startListener() {
       const user = sessionStorage.getItem("user");
       if (!user) return;
 
       if (unsubscribe) unsubscribe();
 
+      // ✅ no orderBy -> no index needed
       const q = query(
         collection(db, "notes"),
-        where("by", "==", user),
-        orderBy("date", "desc")
+        where("by", "==", user)
       );
 
       unsubscribe = onSnapshot(q, (snap) => {
         const list = document.getElementById("notesList");
         list.innerHTML = "";
 
-        if (snap.empty) {
+        // collect
+        const notes = [];
+        snap.forEach((docSnap) => {
+          notes.push({ id: docSnap.id, ...docSnap.data() });
+        });
+
+        // sort newest first in JS
+        notes.sort((a, b) => (b.date || 0) - (a.date || 0));
+
+        if (notes.length === 0) {
           list.textContent = "No notes yet.";
           return;
         }
 
-        snap.forEach((docSnap) => {
-          const d = docSnap.data();
+        // render like your screenshot
+        for (const n of notes) {
           const div = document.createElement("div");
           div.className = "note";
           div.innerHTML = `
-            <button class="delete-btn" type="button" onclick="deleteNote('${docSnap.id}')">Delete</button>
-            <strong>${escapeHtml(d.staffName)}</strong>
-            <div class="meta">${new Date(d.date).toLocaleString()}</div>
-            <div class="text">${escapeHtml(d.staffNote)}</div>
+            <button class="delete-btn" type="button" onclick="deleteNote('${n.id}')">Delete</button>
+            <strong>${escapeHtml(n.staffName)}</strong>
+            <div class="note-meta">${new Date(n.date).toLocaleString()}</div>
+            <div class="note-text">${escapeHtml(n.staffNote)}</div>
           `;
           list.appendChild(div);
-        });
+        }
       }, (err) => {
         console.error(err);
         document.getElementById("notesList").textContent = "Error loading notes (check console).";
       });
     }
 
-    // Expose functions for onclick=""
+    // expose for onclick=""
     window.login = async function () {
       const id = document.getElementById("discordId").value.trim();
       const pass = document.getElementById("password").value;
-
       document.getElementById("loginMsg").textContent = "";
 
       if (!allowedIds.includes(id)) {
@@ -264,7 +270,7 @@
         document.getElementById("userDisplay").textContent = id;
 
         show("mainPage");
-        await startListener();
+        startListener();
       } catch (e) {
         console.error(e);
         document.getElementById("loginMsg").textContent = "Firebase auth failed (open Console).";
@@ -291,8 +297,9 @@
           staffName: staff,
           staffNote: note,
           by: user,
-          date: Date.now()
+          date: Date.now() // ✅ for time + sorting
         });
+
         document.getElementById("staffNote").value = "";
       } catch (e) {
         console.error(e);
@@ -309,7 +316,7 @@
       }
     };
 
-    // Auto-resume if already logged in this session
+    // auto resume session
     if (sessionStorage.getItem("user")) {
       document.getElementById("userDisplay").textContent = sessionStorage.getItem("user");
       show("mainPage");
