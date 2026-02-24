@@ -1,0 +1,377 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Event Staff Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #2c2f33;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .page {
+            display: none;
+            width: 100%;
+            max-width: 600px;
+            background: #23272a;
+            border-radius: 12px;
+            padding: 35px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+
+            .page.active {
+                display: block;
+            }
+
+        h1 {
+            font-size: 26px;
+            margin: 0 0 10px;
+        }
+
+        h2 {
+            font-size: 20px;
+            margin: 0 0 10px;
+        }
+
+        h3 {
+            margin-top: 25px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 14px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 8px;
+            background: #2c2f33;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        /* Main big buttons */
+        button {
+            width: 100%;
+            padding: 14px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 8px;
+            background: #7289da;
+            color: white;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+            button:hover {
+                background: #5b6eae;
+            }
+
+        #notesList {
+            margin-top: 20px;
+        }
+
+        .note {
+            position: relative;
+            background: #2c2f33;
+            padding: 18px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #7289da;
+        }
+
+            .note strong {
+                font-size: 16px;
+            }
+
+        .note-meta {
+            font-size: 12px;
+            opacity: 0.7;
+            margin: 6px 0 10px;
+        }
+
+        .note-text {
+            font-size: 15px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        /* ✅ Fix: Delete button SMALL and not full width */
+        .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 12px; /* pushes it further right */
+            width: auto !important;
+            margin: 0 !important;
+            padding: 6px 10px !important;
+            border-radius: 999px;
+            font-size: 12px !important;
+            background: rgba(255, 107, 107, 0.12) !important;
+            color: #ff6b6b !important;
+            border: 1px solid rgba(255, 107, 107, 0.35) !important;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+            .delete-btn:hover {
+                background: rgba(255, 107, 107, 0.20) !important;
+                color: #ff3b3b !important;
+            }
+
+        /* Recent logins UI */
+        .subtle {
+            opacity: 0.75;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .quick-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .quick-btn {
+            width: auto !important;
+            margin: 0 !important;
+            padding: 10px 12px !important;
+            font-size: 13px !important;
+            border-radius: 10px !important;
+            background: #2c2f33 !important;
+            border: 1px solid rgba(255,255,255,0.08) !important;
+            color: #fff !important;
+        }
+
+            .quick-btn:hover {
+                background: #343842 !important;
+            }
+
+        .danger-link {
+            margin-top: 10px;
+            display: inline-block;
+            font-size: 12px;
+            opacity: 0.75;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- LOGIN PAGE -->
+    <div id="loginPage" class="page active">
+        <h1>Event Staff Tracker</h1>
+        <h2>Login with Discord ID</h2>
+
+        <!-- ✅ Quick Login list -->
+        <div id="quickLoginWrap" class="hidden">
+            <div class="subtle">Recent logins (click to autofill):</div>
+            <div id="quickLoginRow" class="quick-row"></div>
+            <span class="danger-link" onclick="clearRecentLogins()">Clear recent logins</span>
+        </div>
+
+        <input type="text" id="discordId" placeholder="Your Discord ID" />
+        <input type="password" id="password" placeholder="Password" />
+        <button onclick="login()">Login</button>
+        <p id="loginMsg" style="color:#ff6b6b;"></p>
+    </div>
+
+    <!-- MAIN PAGE -->
+    <div id="mainPage" class="page">
+        <h2>Welcome, <span id="userDisplay"></span></h2>
+
+        <h3>Add Notes for Trial Staff</h3>
+        <select id="staffName">
+            <option value="" disabled selected>Select Staff</option>
+            <option>Masonman585</option>
+            <option>𝙷𝚊𝚣𝚖𝚊𝚝</option>
+            <option>civda</option>
+            <option>Glitch</option>
+            <option>Mr.Builder</option>
+            <option>Nate</option>
+            <option>Riskhunter</option>
+            <option>SmokeSteelz</option>
+        </select>
+
+        <textarea id="staffNote" placeholder="Write your notes here" rows="4"></textarea>
+        <button onclick="addNote()">Save Note</button>
+
+        <h3>Saved Notes</h3>
+        <div id="notesList"></div>
+
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <script>
+        const allowedDiscordIds = ["1229027284346994703", "713922739748208660"];
+        const defaultPassword = "1";
+
+        // ===== Recent Logins (localStorage) =====
+        const RECENT_KEY = "recentLogins"; // array of discord IDs
+        const MAX_RECENTS = 5;
+
+        function getRecents() {
+            return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]");
+        }
+
+        function addRecent(discordId) {
+            let recents = getRecents();
+            recents = recents.filter(id => id !== discordId); // remove duplicates
+            recents.unshift(discordId); // newest first
+            recents = recents.slice(0, MAX_RECENTS);
+            localStorage.setItem(RECENT_KEY, JSON.stringify(recents));
+            renderRecents();
+        }
+
+        function renderRecents() {
+            const recents = getRecents();
+            const wrap = document.getElementById("quickLoginWrap");
+            const row = document.getElementById("quickLoginRow");
+
+            if (!recents.length) {
+                wrap.classList.add("hidden");
+                row.innerHTML = "";
+                return;
+            }
+
+            wrap.classList.remove("hidden");
+            row.innerHTML = "";
+            recents.forEach(id => {
+                const b = document.createElement("button");
+                b.className = "quick-btn";
+                b.type = "button";
+                b.textContent = id;
+                b.onclick = () => {
+                    document.getElementById("discordId").value = id;
+                    document.getElementById("password").focus();
+                };
+                row.appendChild(b);
+            });
+        }
+
+        function clearRecentLogins() {
+            localStorage.removeItem(RECENT_KEY);
+            renderRecents();
+        }
+
+        // ===== App Logic =====
+        function login() {
+            const discordId = document.getElementById("discordId").value.trim();
+            const password = document.getElementById("password").value;
+
+            if (!allowedDiscordIds.includes(discordId)) {
+                document.getElementById("loginMsg").textContent = "This Discord ID is not allowed!";
+                return;
+            }
+            if (password !== defaultPassword) {
+                document.getElementById("loginMsg").textContent = "Incorrect password!";
+                return;
+            }
+
+            sessionStorage.setItem("loggedInUser", discordId);
+            addRecent(discordId); // ✅ save recent login
+            showMainPage();
+        }
+
+        function showMainPage() {
+            document.getElementById("loginPage").classList.remove("active");
+            document.getElementById("mainPage").classList.add("active");
+            document.getElementById("userDisplay").textContent = sessionStorage.getItem("loggedInUser");
+            displayNotes();
+        }
+
+        function logout() {
+            sessionStorage.removeItem("loggedInUser");
+            document.getElementById("mainPage").classList.remove("active");
+            document.getElementById("loginPage").classList.add("active");
+            document.getElementById("loginMsg").textContent = "";
+            document.getElementById("password").value = "";
+            renderRecents();
+        }
+
+        function addNote() {
+            const staffName = document.getElementById("staffName").value;
+            const staffNote = document.getElementById("staffNote").value.trim();
+            if (!staffName || !staffNote) return alert("Select a staff member and write a note");
+
+            const notes = JSON.parse(localStorage.getItem("notes") || "[]");
+            notes.push({
+                id: Date.now(),
+                staffName,
+                staffNote,
+                by: sessionStorage.getItem("loggedInUser"),
+                date: new Date().toLocaleString()
+            });
+
+            localStorage.setItem("notes", JSON.stringify(notes));
+            document.getElementById("staffNote").value = "";
+            displayNotes();
+        }
+
+        function deleteNote(noteId) {
+            let notes = JSON.parse(localStorage.getItem("notes") || "[]");
+            notes = notes.filter(note => note.id !== noteId);
+            localStorage.setItem("notes", JSON.stringify(notes));
+            displayNotes();
+        }
+
+        function displayNotes() {
+            const notes = JSON.parse(localStorage.getItem("notes") || "[]");
+            const discordId = sessionStorage.getItem("loggedInUser");
+            const filteredNotes = notes.filter(note => note.by === discordId);
+
+            const notesList = document.getElementById("notesList");
+            notesList.innerHTML = "";
+
+            if (filteredNotes.length === 0) {
+                notesList.textContent = "No notes yet.";
+                return;
+            }
+
+            filteredNotes.forEach(note => {
+                const div = document.createElement("div");
+                div.className = "note";
+
+                div.innerHTML = `
+            <button class="delete-btn" type="button" onclick="deleteNote(${note.id})">Delete</button>
+            <strong>${note.staffName}</strong>
+            <div class="note-meta">${note.date}</div>
+            <div class="note-text">${note.staffNote}</div>
+          `;
+
+                notesList.appendChild(div);
+            });
+        }
+
+        // ===== On load =====
+        renderRecents();
+
+        // Auto-login if already logged in (session)
+        if (sessionStorage.getItem("loggedInUser")) {
+            showMainPage();
+        }
+    </script>
+
+</body>
+</html>
