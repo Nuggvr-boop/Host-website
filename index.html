@@ -1,250 +1,439 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Event Staff Tracker</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Event Staff Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
-<style>
-* { box-sizing: border-box; }
-body {
-  font-family: 'Inter', sans-serif;
-  background: #2c2f33;
-  color: #fff;
-  margin: 0;
-  padding: 24px;
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-}
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #2c2f33;
+      color: #fff;
+      margin: 0;
+      padding: 24px;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+    }
 
-.page {
-  display: none;
-  width: 100%;
-  max-width: 650px;
-  background: #23272a;
-  border-radius: 12px;
-  padding: 28px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-}
-.page.active { display: block; }
+    .page {
+      display: none;
+      width: 100%;
+      max-width: 650px;
+      background: #23272a;
+      border-radius: 12px;
+      padding: 28px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
+    .page.active { display: block; }
 
-h1 { font-size: 26px; margin: 0 0 10px; }
-h2 { font-size: 20px; margin: 0 0 12px; }
-h3 { margin: 22px 0 10px; }
+    h1 { font-size: 26px; margin: 0 0 10px; }
+    h2 { font-size: 20px; margin: 0 0 12px; }
+    h3 { margin: 22px 0 10px; }
 
-input, select, textarea {
-  width: 100%;
-  padding: 14px;
-  margin: 10px 0;
-  border: none;
-  border-radius: 10px;
-  background: #2c2f33;
-  color: #fff;
-  font-size: 14px;
-  outline: none;
-}
-textarea { resize: vertical; min-height: 120px; }
+    input, select, textarea {
+      width: 100%;
+      padding: 14px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      background: #2c2f33;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+    }
+    textarea { resize: vertical; min-height: 120px; }
 
-button {
-  width: 100%;
-  padding: 14px;
-  margin-top: 10px;
-  border: none;
-  border-radius: 10px;
-  background: #7289da;
-  color: #fff;
-  font-size: 15px;
-  cursor: pointer;
-}
-button:hover { background: #5b6eae; }
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 10px;
+      background: #7289da;
+      color: #fff;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:hover { background: #5b6eae; }
 
-.note {
-  position: relative;
-  background: #2c2f33;
-  padding: 16px;
-  margin-bottom: 12px;
-  border-radius: 10px;
-  border-left: 4px solid #7289da;
-}
+    .subtle { opacity: 0.75; font-size: 13px; margin-top: 6px; }
 
-.note strong { font-size: 16px; display:block; margin-bottom: 6px; }
-.note-meta { font-size: 12px; opacity: 0.75; margin-bottom: 8px; }
-.note-text { font-size: 15px; line-height: 1.4; white-space: pre-wrap; }
+    #notesList { margin-top: 14px; }
 
-.delete-btn {
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  width: auto !important;
-  padding: 6px 10px !important;
-  border-radius: 999px !important;
-  font-size: 12px !important;
-  background: rgba(255, 107, 107, 0.14) !important;
-  color: #ff6b6b !important;
-  border: 1px solid rgba(255, 107, 107, 0.28) !important;
-}
-</style>
+    .note {
+      position: relative;
+      background: #2c2f33;
+      padding: 16px 16px 14px;
+      margin-bottom: 12px;
+      border-radius: 10px;
+      border-left: 4px solid #7289da;
+    }
+    .note strong { font-size: 16px; display:block; margin-bottom: 6px; }
+    .note-meta { font-size: 12px; opacity: 0.75; margin-bottom: 8px; }
+    .note-text { font-size: 15px; line-height: 1.4; white-space: pre-wrap; word-wrap: break-word; }
+
+    .delete-btn {
+      position: absolute;
+      top: 10px;
+      right: 12px;
+      width: auto !important;
+      margin: 0 !important;
+      padding: 6px 10px !important;
+      border-radius: 999px !important;
+      font-size: 12px !important;
+      line-height: 1 !important;
+      background: rgba(255, 107, 107, 0.14) !important;
+      color: #ff6b6b !important;
+      border: 1px solid rgba(255, 107, 107, 0.28) !important;
+      cursor: pointer;
+    }
+    .delete-btn:hover {
+      background: rgba(255, 107, 107, 0.22) !important;
+      color: #ff3b3b !important;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .topbar .right { min-width: 140px; }
+
+    /* Recent logins */
+    .quick-wrap { margin: 12px 0 6px; }
+    .quick-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .quick-btn {
+      width: auto !important;
+      margin: 0 !important;
+      padding: 10px 12px !important;
+      font-size: 13px !important;
+      border-radius: 10px !important;
+      background: #2c2f33 !important;
+      border: 1px solid rgba(255,255,255,0.08) !important;
+      color: #fff !important;
+      cursor: pointer;
+    }
+    .quick-btn:hover { background: #343842 !important; }
+    .danger-link {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 12px;
+      opacity: 0.75;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+
+    .who-line {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-top: -2px;
+    }
+  </style>
 </head>
 
 <body>
 
-<div id="loginPage" class="page active">
-  <h1>Event Staff Tracker</h1>
-  <h2>Login with Discord ID</h2>
+  <!-- LOGIN PAGE -->
+  <div id="loginPage" class="page active">
+    <h1>Event Staff Tracker</h1>
+    <h2>Login with Discord ID</h2>
 
-  <input type="text" id="discordId" placeholder="Your Discord ID">
-  <input type="password" id="password" placeholder="Password (1)">
-  <button onclick="login()">Login</button>
+    <!-- Recent logins -->
+    <div id="quickLoginWrap" class="quick-wrap" style="display:none;">
+      <div class="subtle">Recent logins (click to autofill):</div>
+      <div id="quickLoginRow" class="quick-row"></div>
+      <span class="danger-link" onclick="clearRecentLogins()">Clear recent logins</span>
+    </div>
 
-  <p id="loginMsg" style="color:#ff6b6b;"></p>
-</div>
+    <input type="text" id="discordId" placeholder="Your Discord ID" />
+    <div id="loginAs" class="who-line"></div>
+    <input type="password" id="password" placeholder="Password (1)" />
+    <button onclick="login()">Login</button>
 
-<div id="mainPage" class="page">
-  <h2>Welcome, <span id="userDisplay"></span></h2>
+    <p id="loginMsg" style="color:#ff6b6b;"></p>
+    <div class="subtle" id="statusText">Status: loading…</div>
+  </div>
 
-  <h3>Add Notes for Trial Staff</h3>
-  <select id="staffName">
-    <option value="" disabled selected>Select Staff</option>
-    <option>Masonman585</option>
-    <option>𝙷𝚊𝚣𝚖𝚊𝚝</option>
-    <option>civda</option>
-    <option>Glitch</option>
-    <option>Mr.Builder</option>
-    <option>Nate</option>
-    <option>Riskhunter</option>
-    <option>SmokeSteelz</option>
-  </select>
+  <!-- MAIN PAGE -->
+  <div id="mainPage" class="page">
+    <div class="topbar">
+      <div>
+        <h2>Welcome, <span id="userDisplay"></span></h2>
+        <div class="subtle">Notes sync across devices (Firestore).</div>
+      </div>
+      <div class="right">
+        <button onclick="logout()">Logout</button>
+      </div>
+    </div>
 
-  <textarea id="staffNote" placeholder="Write your notes here"></textarea>
-  <button onclick="addNote()">Save Note</button>
+    <h3>Add Notes for Trial Staff</h3>
+    <select id="staffName">
+      <option value="" disabled selected>Select Staff</option>
+      <option>Masonman585</option>
+      <option>𝙷𝚊𝚣𝚖𝚊𝚝</option>
+      <option>civda</option>
+      <option>Glitch</option>
+      <option>Mr.Builder</option>
+      <option>Nate</option>
+      <option>Riskhunter</option>
+      <option>SmokeSteelz</option>
+    </select>
 
-  <h3>Saved Notes</h3>
-  <div id="notesList"></div>
+    <textarea id="staffNote" placeholder="Write your notes here"></textarea>
+    <button onclick="addNote()">Save Note</button>
 
-  <button onclick="logout()">Logout</button>
-</div>
+    <h3>Saved Notes</h3>
+    <div id="notesList">Loading…</div>
+  </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
-import {
-  getFirestore, collection, addDoc, query, where,
-  onSnapshot, deleteDoc, doc
-} from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
+    import {
+      getFirestore, collection, addDoc, query, where,
+      onSnapshot, deleteDoc, doc
+    } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyDQnBtnX3IeSD3PSBJz-6qzdZ1TeFdIU-Y",
-  authDomain: "event-host-we.firebaseapp.com",
-  projectId: "event-host-we",
-  storageBucket: "event-host-we.firebasestorage.app",
-  messagingSenderId: "935018089447",
-  appId: "1:935018089447:web:02893483daf382c4098b42",
-  measurementId: "G-5J3L06TL7E"
-};
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDQnBtnX3IeSD3PSBJz-6qzdZ1TeFdIU-Y",
+      authDomain: "event-host-we.firebaseapp.com",
+      projectId: "event-host-we",
+      storageBucket: "event-host-we.firebasestorage.app",
+      messagingSenderId: "935018089447",
+      appId: "1:935018089447:web:02893483daf382c4098b42",
+      measurementId: "G-5J3L06TL7E"
+    };
 
-const idToName = {
-  "1229027284346994703": "Nugg",
-  "713922739748208660": "ArtistRed",
-  "930583720723898419": "cyberPICKABOOM",
-  "698264742472581180": "Reeta-MKII"
-};
+    // ID -> Display Name
+    const idToName = {
+      "1229027284346994703": "Nugg",
+      "713922739748208660": "ArtistRed",
+      "930583720723898419": "cyberPICKABOOM",
+      "698264742472581180": "Reeta-MKII"
+    };
 
-const allowedIds = Object.keys(idToName);
-const passwordRequired = "1";
+    const allowedIds = Object.keys(idToName);
+    const passwordRequired = "1";
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+    // Recent logins (device/browser only)
+    const RECENT_KEY = "recentLogins";
+    const MAX_RECENTS = 6;
 
-let unsubscribe = null;
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-function show(pageId) {
-  document.getElementById("loginPage").classList.remove("active");
-  document.getElementById("mainPage").classList.remove("active");
-  document.getElementById(pageId).classList.add("active");
-}
+    const statusText = document.getElementById("statusText");
+    statusText.textContent = "Status: ready ✅";
 
-window.login = async function() {
-  const id = document.getElementById("discordId").value.trim();
-  const pass = document.getElementById("password").value;
+    let unsubscribe = null;
 
-  if (!allowedIds.includes(id)) {
-    document.getElementById("loginMsg").textContent = "ID not allowed.";
-    return;
-  }
-  if (pass !== passwordRequired) {
-    document.getElementById("loginMsg").textContent = "Wrong password.";
-    return;
-  }
+    function show(pageId) {
+      document.getElementById("loginPage").classList.remove("active");
+      document.getElementById("mainPage").classList.remove("active");
+      document.getElementById(pageId).classList.add("active");
+    }
 
-  await signInAnonymously(auth);
+    function escapeHtml(s) {
+      return (s ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
 
-  sessionStorage.setItem("user", id);
-  document.getElementById("userDisplay").textContent = idToName[id] || id;
+    // ----- show "Logging in as: NAME" under the input
+    function updateLoginAsText() {
+      const id = document.getElementById("discordId").value.trim();
+      const el = document.getElementById("loginAs");
+      if (!id) { el.textContent = ""; return; }
+      const name = idToName[id];
+      el.textContent = name ? `Logging in as: ${name}` : `Unknown ID`;
+    }
+    document.getElementById("discordId").addEventListener("input", updateLoginAsText);
 
-  show("mainPage");
-  startListener();
-};
+    // ---------- Recent logins ----------
+    function getRecents() {
+      return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]");
+    }
 
-window.logout = function() {
-  sessionStorage.clear();
-  if (unsubscribe) unsubscribe();
-  show("loginPage");
-};
+    function addRecent(id) {
+      let recents = getRecents();
+      recents = recents.filter(x => x !== id);
+      recents.unshift(id);
+      recents = recents.slice(0, MAX_RECENTS);
+      localStorage.setItem(RECENT_KEY, JSON.stringify(recents));
+      renderRecents();
+    }
 
-window.addNote = async function() {
-  const staff = document.getElementById("staffName").value;
-  const note = document.getElementById("staffNote").value.trim();
-  const user = sessionStorage.getItem("user");
+    function renderRecents() {
+      const recents = getRecents();
+      const wrap = document.getElementById("quickLoginWrap");
+      const row = document.getElementById("quickLoginRow");
 
-  if (!staff || !note) return alert("Fill everything.");
+      if (!recents.length) {
+        wrap.style.display = "none";
+        row.innerHTML = "";
+        return;
+      }
 
-  await addDoc(collection(db, "notes"), {
-    staffName: staff,
-    staffNote: note,
-    by: user,
-    byName: idToName[user],
-    date: Date.now()
-  });
+      wrap.style.display = "block";
+      row.innerHTML = "";
 
-  document.getElementById("staffNote").value = "";
-};
+      recents.forEach(id => {
+        const b = document.createElement("button");
+        b.className = "quick-btn";
+        b.type = "button";
 
-window.deleteNote = async function(id) {
-  await deleteDoc(doc(db, "notes", id));
-};
+        // ✅ Show NAME (ID) instead of just ID
+        const name = idToName[id] || "Unknown";
+        b.textContent = `${name} (${id})`;
 
-function startListener() {
-  const user = sessionStorage.getItem("user");
+        b.onclick = () => {
+          document.getElementById("discordId").value = id;
+          updateLoginAsText();
+          document.getElementById("password").focus();
+        };
+        row.appendChild(b);
+      });
+    }
 
-  const q = query(
-    collection(db, "notes"),
-    where("by", "==", user)
-  );
+    window.clearRecentLogins = function () {
+      localStorage.removeItem(RECENT_KEY);
+      renderRecents();
+    };
 
-  unsubscribe = onSnapshot(q, (snap) => {
-    const list = document.getElementById("notesList");
-    list.innerHTML = "";
+    // ---------- Notes listener (no index needed, sort in JS) ----------
+    function startListener() {
+      const user = sessionStorage.getItem("user");
+      if (!user) return;
 
-    const notes = [];
-    snap.forEach(docSnap => notes.push({ id: docSnap.id, ...docSnap.data() }));
-    notes.sort((a,b) => (b.date || 0) - (a.date || 0));
+      if (unsubscribe) unsubscribe();
 
-    notes.forEach(n => {
-      const div = document.createElement("div");
-      div.className = "note";
-      div.innerHTML = `
-        <button class="delete-btn" onclick="deleteNote('${n.id}')">Delete</button>
-        <strong>${n.staffName}</strong>
-        <div class="note-meta">${new Date(n.date).toLocaleString()} • ${n.byName}</div>
-        <div class="note-text">${n.staffNote}</div>
-      `;
-      list.appendChild(div);
-    });
-  });
-}
-</script>
+      const q = query(
+        collection(db, "notes"),
+        where("by", "==", user)
+      );
+
+      unsubscribe = onSnapshot(q, (snap) => {
+        const list = document.getElementById("notesList");
+        list.innerHTML = "";
+
+        const notes = [];
+        snap.forEach((docSnap) => notes.push({ id: docSnap.id, ...docSnap.data() }));
+        notes.sort((a, b) => (b.date || 0) - (a.date || 0));
+
+        if (notes.length === 0) {
+          list.textContent = "No notes yet.";
+          return;
+        }
+
+        for (const n of notes) {
+          const div = document.createElement("div");
+          div.className = "note";
+          div.innerHTML = `
+            <button class="delete-btn" type="button" onclick="deleteNote('${n.id}')">Delete</button>
+            <strong>${escapeHtml(n.staffName)}</strong>
+            <div class="note-meta">${new Date(n.date).toLocaleString()} • ${escapeHtml(n.byName || idToName[n.by] || n.by)}</div>
+            <div class="note-text">${escapeHtml(n.staffNote)}</div>
+          `;
+          list.appendChild(div);
+        }
+      }, (err) => {
+        console.error(err);
+        document.getElementById("notesList").textContent = "Error loading notes (check console).";
+      });
+    }
+
+    // ---------- Handlers ----------
+    window.login = async function () {
+      const id = document.getElementById("discordId").value.trim();
+      const pass = document.getElementById("password").value;
+      document.getElementById("loginMsg").textContent = "";
+
+      if (!allowedIds.includes(id)) {
+        document.getElementById("loginMsg").textContent = "This Discord ID is not allowed.";
+        return;
+      }
+      if (pass !== passwordRequired) {
+        document.getElementById("loginMsg").textContent = "Wrong password.";
+        return;
+      }
+
+      try {
+        await signInAnonymously(auth);
+
+        sessionStorage.setItem("user", id);
+        document.getElementById("userDisplay").textContent = idToName[id] || id;
+
+        addRecent(id);
+        show("mainPage");
+        startListener();
+      } catch (e) {
+        console.error(e);
+        document.getElementById("loginMsg").textContent = "Firebase auth failed (open Console).";
+      }
+    };
+
+    window.logout = function () {
+      sessionStorage.removeItem("user");
+      if (unsubscribe) unsubscribe();
+      unsubscribe = null;
+      show("loginPage");
+      renderRecents();
+      updateLoginAsText();
+    };
+
+    window.addNote = async function () {
+      const staff = document.getElementById("staffName").value;
+      const note = document.getElementById("staffNote").value.trim();
+      const user = sessionStorage.getItem("user");
+
+      if (!staff || !note) return alert("Select staff + write a note.");
+      if (!user) return alert("Not logged in.");
+
+      try {
+        await addDoc(collection(db, "notes"), {
+          staffName: staff,
+          staffNote: note,
+          by: user,
+          byName: idToName[user] || user,
+          date: Date.now()
+        });
+
+        document.getElementById("staffNote").value = "";
+      } catch (e) {
+        console.error(e);
+        alert("Failed to save note (open Console).");
+      }
+    };
+
+    window.deleteNote = async function (docId) {
+      try {
+        await deleteDoc(doc(db, "notes", docId));
+      } catch (e) {
+        console.error(e);
+        alert("Delete failed (open Console).");
+      }
+    };
+
+    // ---------- Init ----------
+    renderRecents();
+    updateLoginAsText();
+
+    if (sessionStorage.getItem("user")) {
+      const id = sessionStorage.getItem("user");
+      document.getElementById("userDisplay").textContent = idToName[id] || id;
+      show("mainPage");
+      startListener();
+    }
+  </script>
 </body>
 </html>
