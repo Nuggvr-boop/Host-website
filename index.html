@@ -105,6 +105,30 @@
       gap: 12px;
     }
     .topbar .right { min-width: 140px; }
+
+    /* Recent logins */
+    .quick-wrap { margin: 12px 0 6px; }
+    .quick-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .quick-btn {
+      width: auto !important;
+      margin: 0 !important;
+      padding: 10px 12px !important;
+      font-size: 13px !important;
+      border-radius: 10px !important;
+      background: #2c2f33 !important;
+      border: 1px solid rgba(255,255,255,0.08) !important;
+      color: #fff !important;
+      cursor: pointer;
+    }
+    .quick-btn:hover { background: #343842 !important; }
+    .danger-link {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 12px;
+      opacity: 0.75;
+      cursor: pointer;
+      text-decoration: underline;
+    }
   </style>
 </head>
 
@@ -114,6 +138,13 @@
   <div id="loginPage" class="page active">
     <h1>Event Staff Tracker</h1>
     <h2>Login with Discord ID</h2>
+
+    <!-- Recent logins -->
+    <div id="quickLoginWrap" class="quick-wrap" style="display:none;">
+      <div class="subtle">Recent logins (click to autofill):</div>
+      <div id="quickLoginRow" class="quick-row"></div>
+      <span class="danger-link" onclick="clearRecentLogins()">Clear recent logins</span>
+    </div>
 
     <input type="text" id="discordId" placeholder="Your Discord ID" />
     <input type="password" id="password" placeholder="Password (1)" />
@@ -174,8 +205,19 @@
       measurementId: "G-5J3L06TL7E"
     };
 
-    const allowedIds = ["1229027284346994703", "713922739748208660"];
+    // ✅ allowed Discord IDs (updated)
+    const allowedIds = [
+      "1229027284346994703",
+      "713922739748208660",
+      "930583720723898419",
+      "698264742472581180"
+    ];
+
     const passwordRequired = "1";
+
+    // Recent logins (local to each device/browser)
+    const RECENT_KEY = "recentLogins";
+    const MAX_RECENTS = 6;
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -200,13 +242,58 @@
         .replaceAll('"', "&quot;");
     }
 
+    // ---------- Recent logins ----------
+    function getRecents() {
+      return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]");
+    }
+
+    function addRecent(id) {
+      let recents = getRecents();
+      recents = recents.filter(x => x !== id);
+      recents.unshift(id);
+      recents = recents.slice(0, MAX_RECENTS);
+      localStorage.setItem(RECENT_KEY, JSON.stringify(recents));
+      renderRecents();
+    }
+
+    function renderRecents() {
+      const recents = getRecents();
+      const wrap = document.getElementById("quickLoginWrap");
+      const row = document.getElementById("quickLoginRow");
+
+      if (!recents.length) {
+        wrap.style.display = "none";
+        row.innerHTML = "";
+        return;
+      }
+
+      wrap.style.display = "block";
+      row.innerHTML = "";
+      recents.forEach(id => {
+        const b = document.createElement("button");
+        b.className = "quick-btn";
+        b.type = "button";
+        b.textContent = id;
+        b.onclick = () => {
+          document.getElementById("discordId").value = id;
+          document.getElementById("password").focus();
+        };
+        row.appendChild(b);
+      });
+    }
+
+    window.clearRecentLogins = function () {
+      localStorage.removeItem(RECENT_KEY);
+      renderRecents();
+    };
+
+    // ---------- Notes listener (no Firestore index needed; sorts in JS) ----------
     function startListener() {
       const user = sessionStorage.getItem("user");
       if (!user) return;
 
       if (unsubscribe) unsubscribe();
 
-      // ✅ no orderBy -> no index needed
       const q = query(
         collection(db, "notes"),
         where("by", "==", user)
@@ -216,13 +303,8 @@
         const list = document.getElementById("notesList");
         list.innerHTML = "";
 
-        // collect
         const notes = [];
-        snap.forEach((docSnap) => {
-          notes.push({ id: docSnap.id, ...docSnap.data() });
-        });
-
-        // sort newest first in JS
+        snap.forEach((docSnap) => notes.push({ id: docSnap.id, ...docSnap.data() }));
         notes.sort((a, b) => (b.date || 0) - (a.date || 0));
 
         if (notes.length === 0) {
@@ -230,7 +312,6 @@
           return;
         }
 
-        // render like your screenshot
         for (const n of notes) {
           const div = document.createElement("div");
           div.className = "note";
@@ -248,7 +329,7 @@
       });
     }
 
-    // expose for onclick=""
+    // ---------- Exposed handlers ----------
     window.login = async function () {
       const id = document.getElementById("discordId").value.trim();
       const pass = document.getElementById("password").value;
@@ -269,6 +350,7 @@
         sessionStorage.setItem("user", id);
         document.getElementById("userDisplay").textContent = id;
 
+        addRecent(id); // ✅ save recent login on this device
         show("mainPage");
         startListener();
       } catch (e) {
@@ -282,6 +364,7 @@
       if (unsubscribe) unsubscribe();
       unsubscribe = null;
       show("loginPage");
+      renderRecents();
     };
 
     window.addNote = async function () {
@@ -297,7 +380,7 @@
           staffName: staff,
           staffNote: note,
           by: user,
-          date: Date.now() // ✅ for time + sorting
+          date: Date.now()
         });
 
         document.getElementById("staffNote").value = "";
@@ -316,7 +399,9 @@
       }
     };
 
-    // auto resume session
+    // ---------- Init ----------
+    renderRecents();
+
     if (sessionStorage.getItem("user")) {
       document.getElementById("userDisplay").textContent = sessionStorage.getItem("user");
       show("mainPage");
