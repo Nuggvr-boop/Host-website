@@ -626,7 +626,7 @@
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
         import {
             getFirestore, collection, addDoc, query, where,
-            onSnapshot, deleteDoc, doc
+            onSnapshot, deleteDoc, doc, updateDoc, getDoc
         } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -662,6 +662,9 @@
 
         let unsubscribe = null;
         let latestNotes = [];
+
+        // ✅ Edit state
+        let editingDocId = null;
 
         // UI helpers
         function showToast(msg) {
@@ -815,11 +818,12 @@
                 const div = document.createElement("div");
                 div.className = "note";
                 div.innerHTML = `
-            <button class="delete-btn" type="button" onclick="deleteNote('${n.id}')">Delete</button>
-            <div class="note-title">${escapeHtml(n.staffName)}</div>
-            <div class="note-meta">${new Date(n.date).toLocaleString()} • ${escapeHtml(n.byName || idToName[n.by] || n.by)}</div>
-            <div class="note-text">${escapeHtml(n.staffNote)}</div>
-          `;
+                        <button class="delete-btn" type="button" onclick="deleteNote('${n.id}')">Delete</button>
+                        <button class="delete-btn" type="button" style="right: 78px;" onclick="editNote('${n.id}')">Edit</button>
+                        <div class="note-title">${escapeHtml(n.staffName)}</div>
+                        <div class="note-meta">${new Date(n.date).toLocaleString()} • ${escapeHtml(n.byName || idToName[n.by] || n.by)}</div>
+                        <div class="note-text">${escapeHtml(n.staffNote)}</div>
+                    `;
                 list.appendChild(div);
             }
         }
@@ -852,6 +856,31 @@
             const block = parts.join("\n");
             box.value = (box.value ? box.value.trimEnd() + "\n\n" : "") + block + "\n";
             showToast("Prompts added ✅");
+        };
+
+        // ✅ Edit note (load into Add tab)
+        window.editNote = async function (docId) {
+            try {
+                const user = sessionStorage.getItem("user");
+                if (!user) return;
+
+                const snap = await getDoc(doc(db, "notes", docId));
+                if (!snap.exists()) return showToast("Note not found");
+
+                const data = snap.data();
+                if (data.by !== user) return showToast("Not allowed");
+
+                editingDocId = docId;
+
+                document.getElementById("staffName").value = data.staffName || "";
+                document.getElementById("staffNote").value = data.staffNote || "";
+
+                openTab("addTab");
+                showToast("Editing… ✅");
+            } catch (e) {
+                console.error(e);
+                showToast("Edit failed (check console)");
+            }
         };
 
         // Handlers
@@ -890,6 +919,10 @@
             if (unsubscribe) unsubscribe();
             unsubscribe = null;
             latestNotes = [];
+
+            // ✅ reset edit mode on logout
+            editingDocId = null;
+
             showLogin();
             renderRecents();
             setLoginAsText();
@@ -903,6 +936,20 @@
             if (!staff || !note) return showToast("Fill staff + note first");
 
             try {
+                if (editingDocId) {
+                    await updateDoc(doc(db, "notes", editingDocId), {
+                        staffName: staff,
+                        staffNote: note,
+                        date: Date.now()
+                    });
+
+                    editingDocId = null;
+                    document.getElementById("staffNote").value = "";
+                    openTab("notesTab");
+                    showToast("Updated ✅");
+                    return;
+                }
+
                 await addDoc(collection(db, "notes"), {
                     staffName: staff,
                     staffNote: note,
@@ -922,6 +969,7 @@
         window.deleteNote = async function (docId) {
             try {
                 await deleteDoc(doc(db, "notes", docId));
+                if (editingDocId === docId) editingDocId = null;
                 showToast("Deleted ✅");
             } catch (e) {
                 console.error(e);
