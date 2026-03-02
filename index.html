@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Event Staff Tracker</title>
+
+    <!-- ✅ TAB ICON (FAVICON) -->
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="apple-touch-icon" href="icon.png">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
 
     <style>
@@ -18,18 +23,27 @@
             --danger: #ff6b6b;
             --shadow: 0 18px 60px rgba(0,0,0,0.45);
             --radius: 18px;
+
+            /* extra */
+            --field-bg: rgba(0,0,0,0.26);
+            --field-bg-2: rgba(0,0,0,0.34);
         }
 
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
             margin: 0;
             font-family: 'Inter',sans-serif;
             color: var(--text);
-            background: radial-gradient(1200px 600px at 20% -10%, rgba(114,137,218,0.28), transparent 60%), radial-gradient(900px 500px at 90% 10%, rgba(255,107,107,0.18), transparent 60%), radial-gradient(900px 700px at 50% 120%, rgba(114,137,218,0.18), transparent 60%), var(--bg);
+            background:
+                radial-gradient(1200px 600px at 20% -10%, rgba(114,137,218,0.28), transparent 60%),
+                radial-gradient(900px 500px at 90% 10%, rgba(255,107,107,0.18), transparent 60%),
+                radial-gradient(900px 700px at 50% 120%, rgba(114,137,218,0.18), transparent 60%),
+                var(--bg);
             min-height: 100vh;
+
+            /* ✅ Helps browsers render native controls dark (fixes white dropdowns in Edge/Chrome) */
+            color-scheme: dark;
         }
 
         .glass {
@@ -39,6 +53,168 @@
             box-shadow: var(--shadow);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
+        }
+
+        /* =========================
+           ✅ LOADING SCREEN
+           ========================= */
+        .loader {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+            background:
+                radial-gradient(900px 420px at 50% 38%, rgba(114,137,218,0.28), transparent 60%),
+                radial-gradient(700px 360px at 30% 60%, rgba(255,107,107,0.16), transparent 60%),
+                radial-gradient(800px 420px at 75% 70%, rgba(0,255,255,0.10), transparent 60%),
+                #0f1115;
+        }
+
+        .loader::before {
+            content: "";
+            position: absolute;
+            inset: -40%;
+            background: conic-gradient(from 180deg,
+                rgba(114,137,218,0.0),
+                rgba(114,137,218,0.25),
+                rgba(0,255,255,0.18),
+                rgba(255,107,107,0.18),
+                rgba(114,137,218,0.0)
+            );
+            filter: blur(28px);
+            opacity: .9;
+            animation: spin 7s linear infinite;
+        }
+
+        .loader-inner {
+            position: relative;
+            width: min(720px, 92vw);
+            padding: 26px 22px 18px;
+            border-radius: 22px;
+            border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(0,0,0,0.35);
+            box-shadow: 0 22px 70px rgba(0,0,0,0.55);
+            backdrop-filter: blur(14px);
+        }
+
+        .logo-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 10px 6px;
+        }
+
+        .loader-logo {
+            width: min(560px, 88vw);
+            height: auto;
+            display: block;
+            filter:
+                drop-shadow(0 18px 40px rgba(0,0,0,0.55))
+                drop-shadow(0 0 22px rgba(0,255,255,0.22))
+                drop-shadow(0 0 18px rgba(114,137,218,0.22));
+            animation: floaty 2.9s ease-in-out infinite;
+            transform-origin: 50% 55%;
+        }
+
+        .loader-sub {
+            font-size: 13px;
+            color: rgba(238,241,246,0.75);
+            letter-spacing: 0.25px;
+        }
+
+        .bar {
+            margin-top: 14px;
+            height: 12px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(255,255,255,0.06);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar > span {
+            position: absolute;
+            inset: 0;
+            width: 38%;
+            border-radius: 999px;
+            background: linear-gradient(90deg,
+                rgba(114,137,218,0.0),
+                rgba(114,137,218,0.55),
+                rgba(0,255,255,0.45),
+                rgba(255,107,107,0.35),
+                rgba(114,137,218,0.0)
+            );
+            animation: shimmer 1.25s ease-in-out infinite;
+            filter: blur(0.2px);
+        }
+
+        .loader-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: rgba(238,241,246,0.62);
+        }
+
+        .dots { display: inline-flex; gap: 6px; align-items: center; }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.22);
+            animation: pop 0.9s ease-in-out infinite;
+        }
+        .dot:nth-child(2) { animation-delay: .12s; }
+        .dot:nth-child(3) { animation-delay: .24s; }
+
+        .particles {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .p {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.12);
+            filter: blur(0.2px);
+            animation: drift 6.5s linear infinite;
+        }
+
+        .loader.hide { animation: fadeOut 0.55s ease forwards; }
+
+        @keyframes fadeOut { to { opacity: 0; visibility: hidden; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes floaty {
+            0%,100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-10px) scale(1.01); }
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-55%); opacity: .55; }
+            50% { opacity: 1; }
+            100% { transform: translateX(215%); opacity: .55; }
+        }
+        @keyframes pop {
+            0%,100% { transform: translateY(0); opacity: .55; }
+            50% { transform: translateY(-2px); opacity: 1; }
+        }
+        @keyframes drift {
+            0% { transform: translateY(110vh) translateX(0); opacity: 0; }
+            10% { opacity: .9; }
+            100% { transform: translateY(-20vh) translateX(40px); opacity: 0; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .loader::before, .loader-logo, .bar > span, .dot, .p { animation: none !important; }
         }
 
         /* ---------- Login ---------- */
@@ -78,20 +254,49 @@
             padding: 13px 14px;
             border-radius: 14px;
             border: 1px solid rgba(255,255,255,0.10);
-            background: rgba(0,0,0,0.20);
+            background: var(--field-bg);
             color: var(--text);
             outline: none;
             font-size: 14px;
         }
 
-        textarea {
-            min-height: 120px;
-            resize: vertical;
+        textarea { min-height: 120px; resize: vertical; }
+
+        input::placeholder, textarea::placeholder {
+            color: rgba(238,241,246,0.42);
         }
 
-            input::placeholder, textarea::placeholder {
-                color: rgba(238,241,246,0.42);
-            }
+        /* ✅ Fix white dropdown menus (options list) */
+        select {
+            background: var(--field-bg);
+            color: var(--text);
+            color-scheme: dark;
+        }
+        select option, select optgroup {
+            background: #151a22;
+            color: var(--text);
+        }
+
+        /* Optional: nicer dropdown arrow */
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image:
+                linear-gradient(45deg, transparent 50%, rgba(238,241,246,0.7) 50%),
+                linear-gradient(135deg, rgba(238,241,246,0.7) 50%, transparent 50%),
+                linear-gradient(to right, transparent, transparent);
+            background-position:
+                calc(100% - 18px) 50%,
+                calc(100% - 12px) 50%,
+                0 0;
+            background-size:
+                6px 6px,
+                6px 6px,
+                100% 100%;
+            background-repeat: no-repeat;
+            padding-right: 34px;
+        }
 
         .btn {
             width: 100%;
@@ -105,34 +310,23 @@
             font-weight: 600;
         }
 
-            .btn:hover {
-                transform: translateY(-1px);
-                background: rgba(255,255,255,0.08);
-            }
+        .btn:hover {
+            transform: translateY(-1px);
+            background: rgba(255,255,255,0.08);
+        }
 
         .btn-primary {
             background: rgba(114,137,218,0.28);
             border-color: rgba(114,137,218,0.45);
         }
 
-            .btn-primary:hover {
-                background: rgba(114,137,218,0.36);
-            }
+        .btn-primary:hover { background: rgba(114,137,218,0.36); }
 
-        .mini {
-            font-size: 12px;
-            color: var(--muted);
-        }
+        .mini { font-size: 12px; color: var(--muted); }
 
-        .error {
-            color: var(--danger);
-            margin: 6px 0 0;
-            font-size: 13px;
-        }
+        .error { color: var(--danger); margin: 6px 0 0; font-size: 13px; }
 
-        .quick-wrap {
-            margin-top: 10px;
-        }
+        .quick-wrap { margin-top: 10px; }
 
         .quick-row {
             display: flex;
@@ -152,9 +346,7 @@
             cursor: pointer;
         }
 
-            .quick-btn:hover {
-                background: rgba(255,255,255,0.10);
-            }
+        .quick-btn:hover { background: rgba(255,255,255,0.10); }
 
         .link {
             display: inline-block;
@@ -166,18 +358,16 @@
         }
 
         /* ---------- App Shell ---------- */
-        .app {
-            display: none;
-            min-height: 100vh;
-        }
+        .app { display: none; min-height: 100vh; }
 
         .shell {
             display: grid;
-            grid-template-columns: 270px 1fr;
+            grid-template-columns: 270px minmax(0, 1fr); /* ✅ prevents "cut off" overflow */
             gap: 18px;
             padding: 18px;
             max-width: 1200px;
             margin: 0 auto;
+            align-items: start;
         }
 
         .sidebar {
@@ -199,10 +389,7 @@
             border-bottom: 1px solid rgba(255,255,255,0.08);
         }
 
-            .brand .name {
-                font-weight: 700;
-                font-size: 16px;
-            }
+        .brand .name { font-weight: 700; font-size: 16px; }
 
         .pill {
             padding: 6px 10px;
@@ -221,27 +408,25 @@
             margin-top: 6px;
         }
 
-            .nav button {
-                text-align: left;
-                width: 100%;
-                border-radius: 14px;
-                padding: 11px 12px;
-                background: rgba(255,255,255,0.04);
-                border: 1px solid rgba(255,255,255,0.08);
-                color: var(--text);
-                cursor: pointer;
-                font-weight: 600;
-                transition: 0.15s ease;
-            }
+        .nav button {
+            text-align: left;
+            width: 100%;
+            border-radius: 14px;
+            padding: 11px 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: var(--text);
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.15s ease;
+        }
 
-                .nav button:hover {
-                    background: rgba(255,255,255,0.08);
-                }
+        .nav button:hover { background: rgba(255,255,255,0.08); }
 
-                .nav button.active {
-                    background: rgba(114,137,218,0.22);
-                    border-color: rgba(114,137,218,0.40);
-                }
+        .nav button.active {
+            background: rgba(114,137,218,0.22);
+            border-color: rgba(114,137,218,0.40);
+        }
 
         .sidebar-bottom {
             margin-top: auto;
@@ -255,14 +440,13 @@
             border-color: rgba(255,107,107,0.25);
         }
 
-            .btn-danger:hover {
-                background: rgba(255,107,107,0.20);
-            }
+        .btn-danger:hover { background: rgba(255,107,107,0.20); }
 
         .content {
             display: flex;
             flex-direction: column;
             gap: 18px;
+            min-width: 0; /* ✅ prevents right side from being "cut" */
         }
 
         .topbar {
@@ -273,30 +457,13 @@
             gap: 12px;
         }
 
-            .topbar h2 {
-                margin: 0;
-                font-size: 18px;
-            }
+        .topbar h2 { margin: 0; font-size: 18px; }
+        .topbar .muted { color: var(--muted); font-size: 13px; margin-top: 4px; }
 
-            .topbar .muted {
-                color: var(--muted);
-                font-size: 13px;
-                margin-top: 4px;
-            }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
 
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 18px;
-        }
-
-        .tab {
-            display: none;
-        }
-
-            .tab.active {
-                display: block;
-            }
+        .tab { display: none; }
+        .tab.active { display: block; }
 
         .controls {
             display: grid;
@@ -305,9 +472,7 @@
             margin-top: 10px;
         }
 
-        .notes {
-            padding: 18px;
-        }
+        .notes { padding: 18px; }
 
         .note {
             position: relative;
@@ -319,29 +484,14 @@
             transition: 0.15s ease;
         }
 
-            .note:hover {
-                transform: translateY(-1px);
-                background: rgba(255,255,255,0.07);
-            }
-
-        .note-title {
-            font-weight: 700;
-            font-size: 16px;
-            margin: 0 0 6px;
+        .note:hover {
+            transform: translateY(-1px);
+            background: rgba(255,255,255,0.07);
         }
 
-        .note-meta {
-            font-size: 12px;
-            color: var(--muted);
-            margin-bottom: 10px;
-        }
-
-        .note-text {
-            font-size: 14px;
-            line-height: 1.45;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
+        .note-title { font-weight: 700; font-size: 16px; margin: 0 0 6px; }
+        .note-meta { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+        .note-text { font-size: 14px; line-height: 1.45; white-space: pre-wrap; word-wrap: break-word; }
 
         .delete-btn {
             position: absolute;
@@ -357,44 +507,71 @@
             cursor: pointer;
         }
 
-            .delete-btn:hover {
-                background: rgba(255,107,107,0.20);
-            }
+        .delete-btn:hover { background: rgba(255,107,107,0.20); }
 
-        .card {
-            padding: 18px;
-        }
+        .card { padding: 18px; }
+        .card h3 { margin: 0 0 10px; font-size: 16px; }
 
-            .card h3 {
-                margin: 0 0 10px;
-                font-size: 16px;
-            }
+        .hint { font-size: 12px; color: var(--muted); margin-top: -4px; }
 
-        .hint {
-            font-size: 12px;
-            color: var(--muted);
-            margin-top: -4px;
-        }
-
-        /* Prompt dropdown grid */
+        /* ✅ Fix prompt grid breaking / "cut in half" */
         .prompt-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 12px;
             margin-top: 12px;
         }
+        .prompt-grid select { min-width: 0; }
+        .prompt-grid button { grid-column: 1 / -1; } /* button spans full width */
 
-        .prompt-actions {
+        .prompt-actions { display: flex; gap: 10px; margin-top: 12px; }
+        .prompt-actions .btn { width: 100%; }
+
+        /* ✅ Accepted tab rows */
+        .accepted-wrap { padding: 18px; }
+        .accepted-list { margin-top: 12px; display: grid; gap: 10px; }
+        .accepted-row {
             display: flex;
-            gap: 10px;
-            margin-top: 12px;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 12px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.05);
+        }
+        .accepted-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .accepted-left label { cursor: pointer; }
+        .accepted-name {
+            font-weight: 700;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+        .accepted-tag {
+            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(0,0,0,0.18);
+            color: rgba(238,241,246,0.78);
+            white-space: nowrap;
+        }
+        .accepted-tag.on {
+            background: rgba(114,137,218,0.22);
+            border-color: rgba(114,137,218,0.40);
+            color: var(--text);
         }
 
-            .prompt-actions .btn {
-                width: 100%;
-            }
+        /* nicer checkbox */
+        .chk {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--brand);
+        }
 
-        /* Toast */
         .toast {
             position: fixed;
             bottom: 18px;
@@ -409,30 +586,38 @@
             display: none;
             box-shadow: 0 10px 30px rgba(0,0,0,0.35);
             font-size: 13px;
+            z-index: 9998;
         }
 
         @media (max-width: 900px) {
-            .shell {
-                grid-template-columns: 1fr;
-            }
-
-            .sidebar {
-                position: static;
-                height: auto;
-            }
-
-            .controls {
-                grid-template-columns: 1fr;
-            }
-
-            .prompt-grid {
-                grid-template-columns: 1fr;
-            }
+            .shell { grid-template-columns: 1fr; }
+            .sidebar { position: static; height: auto; }
+            .controls { grid-template-columns: 1fr; }
+            .prompt-grid { grid-template-columns: 1fr; }
+            .prompt-grid button { grid-column: auto; }
         }
     </style>
 </head>
 
 <body>
+
+    <!-- ✅ LOADING SCREEN (shows first) -->
+    <div id="loader" class="loader" aria-label="Loading screen">
+        <div class="particles" id="particles"></div>
+
+        <div class="loader-inner">
+            <div class="logo-wrap">
+                <img class="loader-logo" src="pickaboom-logo.png" alt="PICKABOOM logo" />
+                <div class="loader-sub">Loading staff tracker <span class="dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span></div>
+            </div>
+
+            <div class="bar"><span></span></div>
+            <div class="loader-meta">
+                <span id="loadHint">Starting…</span>
+                <span id="loadPct">0%</span>
+            </div>
+        </div>
+    </div>
 
     <!-- LOGIN -->
     <div id="loginWrap" class="login-wrap">
@@ -473,6 +658,7 @@
                 <div class="nav">
                     <button id="tabBtnNotes" class="active" onclick="openTab('notesTab')">🗒 Notes</button>
                     <button id="tabBtnAdd" onclick="openTab('addTab')">➕ Add Note</button>
+                    <button id="tabBtnAccepted" onclick="openTab('acceptedTab')">✅ Accepted</button>
                     <button id="tabBtnSettings" onclick="openTab('settingsTab')">⚙ Settings</button>
                 </div>
 
@@ -505,7 +691,7 @@
                                 <option>𝙷𝚊𝚣𝚖𝚊𝚝</option>
                                 <option>civda</option>
                                 <option>Glitch</option>
-                                <option>Mr.Builder</option>
+                                <option>Dafound1</option>
                                 <option>Nate</option>
                                 <option>Riskhunter</option>
                                 <option>SmokeSteelz</option>
@@ -526,7 +712,7 @@
                             <option>𝙷𝚊𝚣𝚖𝚊𝚝</option>
                             <option>civda</option>
                             <option>Glitch</option>
-                            <option>Mr.Builder</option>
+                            <option>Dafound1</option>
                             <option>Nate</option>
                             <option>Riskhunter</option>
                             <option>SmokeSteelz</option>
@@ -604,6 +790,13 @@
                         </div>
                     </div>
 
+                    <!-- ✅ ACCEPTED TAB -->
+                    <div id="acceptedTab" class="tab glass accepted-wrap">
+                        <h3 style="margin:0;">Accepted Staff</h3>
+                        <div class="hint">Tick who is accepted. This saves to Firestore (per login).</div>
+                        <div id="acceptedList" class="accepted-list mini" style="margin-top:12px;">Loading…</div>
+                    </div>
+
                     <!-- SETTINGS TAB -->
                     <div id="settingsTab" class="tab glass card">
                         <h3>Settings</h3>
@@ -622,12 +815,71 @@
     <div id="toast" class="toast"></div>
 
     <script type="module">
+        // =========================
+        // ✅ LOADER helpers
+        // =========================
+        const loaderEl = document.getElementById("loader");
+        const loadHint = document.getElementById("loadHint");
+        const loadPct = document.getElementById("loadPct");
+
+        let fakePct = 0;
+        let pctTimer = null;
+
+        function setHint(text) { loadHint.textContent = text; }
+        function setPct(p) {
+            fakePct = Math.max(fakePct, Math.min(99, Math.floor(p)));
+            loadPct.textContent = `${fakePct}%`;
+        }
+        function startFakeProgress() {
+            if (pctTimer) return;
+            pctTimer = setInterval(() => {
+                if (fakePct < 92) fakePct += (fakePct < 40 ? 3 : fakePct < 70 ? 2 : 1);
+                loadPct.textContent = `${fakePct}%`;
+            }, 180);
+        }
+        function finishLoader() {
+            clearInterval(pctTimer);
+            pctTimer = null;
+            fakePct = 100;
+            loadPct.textContent = `100%`;
+            setHint("Ready ✅");
+            loaderEl.classList.add("hide");
+            setTimeout(() => loaderEl.remove(), 650);
+        }
+
+        (function spawnParticles() {
+            const host = document.getElementById("particles");
+            const count = 28;
+            for (let i = 0; i < count; i++) {
+                const d = document.createElement("div");
+                d.className = "p";
+                d.style.left = Math.random() * 100 + "%";
+                d.style.animationDelay = (Math.random() * 6.5) + "s";
+                d.style.animationDuration = (5 + Math.random() * 6) + "s";
+                d.style.opacity = (0.12 + Math.random() * 0.35).toFixed(2);
+                const size = 4 + Math.floor(Math.random() * 8);
+                d.style.width = size + "px";
+                d.style.height = size + "px";
+                host.appendChild(d);
+            }
+        })();
+
+        setHint("Booting…");
+        startFakeProgress();
+
+        // =========================
+        // ✅ Firebase + App code
+        // =========================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-auth.js";
         import {
             getFirestore, collection, addDoc, query, where,
-            onSnapshot, deleteDoc, doc, updateDoc, getDoc
+            onSnapshot, deleteDoc, doc, updateDoc, getDoc,
+            setDoc
         } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
+
+        setHint("Loading Firebase…");
+        setPct(25);
 
         const firebaseConfig = {
             apiKey: "AIzaSyDQnBtnX3IeSD3PSBJz-6qzdZ1TeFdIU-Y",
@@ -649,7 +901,17 @@
         const allowedIds = Object.keys(idToName);
         const passwordRequired = "1";
 
-        // Recents
+        const STAFF_LIST = [
+            "Masonman585",
+            "𝙷𝚊𝚣𝚖𝚊𝚝",
+            "civda",
+            "Glitch",
+            "Dafound1",
+            "Nate",
+            "Riskhunter",
+            "SmokeSteelz"
+        ];
+
         const RECENT_KEY = "recentLogins";
         const MAX_RECENTS = 6;
 
@@ -660,13 +922,14 @@
         const statusText = document.getElementById("statusText");
         statusText.textContent = "Status: ready ✅";
 
-        let unsubscribe = null;
+        let unsubscribe = null;          // notes
+        let unsubscribeStatus = null;    // accepted statuses
         let latestNotes = [];
-
-        // ✅ Edit state
         let editingDocId = null;
 
-        // UI helpers
+        // accepted status map
+        let statusMap = {}; // { staffName: true/false }
+
         function showToast(msg) {
             const t = document.getElementById("toast");
             t.textContent = msg;
@@ -691,14 +954,13 @@
         }
         document.getElementById("discordId").addEventListener("input", setLoginAsText);
 
-        // Tabs
         window.openTab = function (tabId) {
-            ["notesTab", "addTab", "settingsTab"].forEach(id => {
+            ["notesTab", "addTab", "acceptedTab", "settingsTab"].forEach(id => {
                 document.getElementById(id).classList.remove("active");
             });
             document.getElementById(tabId).classList.add("active");
 
-            ["tabBtnNotes", "tabBtnAdd", "tabBtnSettings"].forEach(id => {
+            ["tabBtnNotes", "tabBtnAdd", "tabBtnAccepted", "tabBtnSettings"].forEach(id => {
                 document.getElementById(id).classList.remove("active");
             });
 
@@ -713,6 +975,11 @@
                 document.getElementById("tabBtnAdd").classList.add("active");
                 title.textContent = "Add Note";
                 desc.textContent = "Write a new note for trial staff.";
+            } else if (tabId === "acceptedTab") {
+                document.getElementById("tabBtnAccepted").classList.add("active");
+                title.textContent = "Accepted";
+                desc.textContent = "Tick who has been accepted.";
+                renderAccepted(); // keep it fresh
             } else {
                 document.getElementById("tabBtnSettings").classList.add("active");
                 title.textContent = "Settings";
@@ -720,7 +987,6 @@
             }
         };
 
-        // Recent logins
         function getRecents() { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); }
 
         function addRecent(id) {
@@ -760,7 +1026,6 @@
             showToast("Recent logins cleared ✅");
         };
 
-        // App show/hide
         function showApp() {
             document.getElementById("loginWrap").style.display = "none";
             document.getElementById("app").style.display = "block";
@@ -770,7 +1035,6 @@
             document.getElementById("loginWrap").style.display = "grid";
         }
 
-        // Listener (no index; sort in JS)
         function startListener() {
             const user = sessionStorage.getItem("user");
             if (!user) return;
@@ -778,7 +1042,6 @@
             if (unsubscribe) unsubscribe();
 
             const q = query(collection(db, "notes"), where("by", "==", user));
-
             unsubscribe = onSnapshot(q, (snap) => {
                 const notes = [];
                 snap.forEach(docSnap => notes.push({ id: docSnap.id, ...docSnap.data() }));
@@ -791,15 +1054,95 @@
             });
         }
 
+        function statusDocId(user, staffName) {
+            // Firestore doc ids can't contain "/" so we encode
+            return `${user}__${encodeURIComponent(staffName)}`;
+        }
+
+        function startStatusListener() {
+            const user = sessionStorage.getItem("user");
+            if (!user) return;
+
+            if (unsubscribeStatus) unsubscribeStatus();
+
+            const q = query(collection(db, "staffStatus"), where("by", "==", user));
+            unsubscribeStatus = onSnapshot(q, (snap) => {
+                const map = {};
+                snap.forEach(ds => {
+                    const d = ds.data();
+                    if (d && d.staffName) map[d.staffName] = !!d.accepted;
+                });
+                statusMap = map;
+                renderAccepted();
+            }, (err) => {
+                console.error(err);
+                const host = document.getElementById("acceptedList");
+                if (host) host.textContent = "Error loading accepted list (check console).";
+            });
+        }
+
+        async function setAccepted(staffName, isAccepted) {
+            const user = sessionStorage.getItem("user");
+            if (!user) return;
+
+            const id = statusDocId(user, staffName);
+            await setDoc(doc(db, "staffStatus", id), {
+                by: user,
+                byName: idToName[user] || user,
+                staffName,
+                accepted: !!isAccepted,
+                updated: Date.now()
+            }, { merge: true });
+        }
+
+        function renderAccepted() {
+            const host = document.getElementById("acceptedList");
+            if (!host) return;
+
+            host.innerHTML = "";
+            for (const name of STAFF_LIST) {
+                const on = !!statusMap[name];
+
+                const row = document.createElement("div");
+                row.className = "accepted-row";
+
+                row.innerHTML = `
+                    <div class="accepted-left">
+                        <input class="chk" type="checkbox" id="acc_${escapeHtml(name)}" ${on ? "checked" : ""} />
+                        <label for="acc_${escapeHtml(name)}">
+                            <div class="accepted-name">${escapeHtml(name)}</div>
+                            <div class="mini">${on ? "Accepted" : "Not accepted yet"}</div>
+                        </label>
+                    </div>
+                    <div class="accepted-tag ${on ? "on" : ""}">${on ? "✅ Accepted" : "—"}</div>
+                `;
+
+                const checkbox = row.querySelector("input[type=checkbox]");
+                checkbox.addEventListener("change", async () => {
+                    try {
+                        await setAccepted(name, checkbox.checked);
+                        showToast(checkbox.checked ? "Marked accepted ✅" : "Unmarked ✅");
+                    } catch (e) {
+                        console.error(e);
+                        checkbox.checked = !checkbox.checked;
+                        showToast("Save failed (check console)");
+                    }
+                });
+
+                host.appendChild(row);
+            }
+
+            if (!STAFF_LIST.length) host.textContent = "No staff added yet.";
+        }
+
         function renderNotes() {
             const list = document.getElementById("notesList");
             const search = document.getElementById("searchInput").value.trim().toLowerCase();
             const filter = document.getElementById("filterStaff").value;
 
             let notes = [...latestNotes];
-            if (filter !== "__all__") {
-                notes = notes.filter(n => n.staffName === filter);
-            }
+            if (filter !== "__all__") notes = notes.filter(n => n.staffName === filter);
+
             if (search) {
                 notes = notes.filter(n =>
                     (n.staffName || "").toLowerCase().includes(search) ||
@@ -809,10 +1152,7 @@
             }
 
             list.innerHTML = "";
-            if (!notes.length) {
-                list.textContent = "No notes found.";
-                return;
-            }
+            if (!notes.length) { list.textContent = "No notes found."; return; }
 
             for (const n of notes) {
                 const div = document.createElement("div");
@@ -831,7 +1171,6 @@
         document.getElementById("searchInput").addEventListener("input", renderNotes);
         document.getElementById("filterStaff").addEventListener("change", renderNotes);
 
-        // ✅ Add prompt lines into the textarea
         window.applyPrompts = function () {
             const tone = document.getElementById("tonePick").value;
             const conf = document.getElementById("confidencePick").value;
@@ -858,7 +1197,6 @@
             showToast("Prompts added ✅");
         };
 
-        // ✅ Edit note (load into Add tab)
         window.editNote = async function (docId) {
             try {
                 const user = sessionStorage.getItem("user");
@@ -883,7 +1221,6 @@
             }
         };
 
-        // Handlers
         window.login = async function () {
             const id = document.getElementById("discordId").value.trim();
             const pass = document.getElementById("password").value;
@@ -907,6 +1244,7 @@
                 showApp();
                 openTab("notesTab");
                 startListener();
+                startStatusListener();
                 showToast("Logged in ✅");
             } catch (e) {
                 console.error(e);
@@ -917,10 +1255,13 @@
         window.logout = function () {
             sessionStorage.removeItem("user");
             if (unsubscribe) unsubscribe();
-            unsubscribe = null;
-            latestNotes = [];
+            if (unsubscribeStatus) unsubscribeStatus();
 
-            // ✅ reset edit mode on logout
+            unsubscribe = null;
+            unsubscribeStatus = null;
+
+            latestNotes = [];
+            statusMap = {};
             editingDocId = null;
 
             showLogin();
@@ -957,6 +1298,7 @@
                     byName: idToName[user] || user,
                     date: Date.now()
                 });
+
                 document.getElementById("staffNote").value = "";
                 openTab("notesTab");
                 showToast("Saved ✅");
@@ -990,7 +1332,15 @@
             showApp();
             openTab("notesTab");
             startListener();
+            startStatusListener();
+        } else {
+            renderAccepted();
         }
+
+        // ✅ done loading
+        setHint("Finalising…");
+        setPct(90);
+        setTimeout(() => { finishLoader(); }, 350);
     </script>
 </body>
 </html>
